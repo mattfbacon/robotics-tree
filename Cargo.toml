@@ -1,0 +1,9 @@
+[package]
+edition = "2021"
+name = "robotics-tree"
+version = "0.1.0"
+
+[dependencies]
+askama = {version = "0.11"}
+comrak = {version = "0.14", default-features = false}
+itertools = "0.10"

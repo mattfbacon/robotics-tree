@@ -1,0 +1,4 @@
+{% extends "_layout.html" %} {% block title %}{{item.name}} - Robotics Curriculum{% endblock %} {% block body %}
+<h1>{{item.name}}</h1>
+<p>{{item.description}}</p>
+{{item.content|md|safe}} {% endblock body %}
