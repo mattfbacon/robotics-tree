@@ -13,31 +13,46 @@
 body {
 	background: var(--background);
 	color: var(--foreground);
-	margin: 1rem;
 	font-family: sans-serif;
+	margin: 1rem;
 }
 
 main {
+	align-items: center;
 	display: flex;
 	flex-direction: column;
-	align-items: center;
-	justify-content: start;
 	gap: 1rem;
+	justify-content: start;
+}
+
+.close-button {
+	background: none;
+	border-radius: 2px;
+	border: 1px solid var(--foreground);
+	color: var(--foreground);
+}
+
+.dialog {
+	background: var(--background);
+	border-radius: 6px;
+	border: 3px solid var(--foreground);
+	color: var(--foreground);
+	min-width: min(50rem, 60vw);
 }
 
 .node {
+	align-items: center;
 	background: var(--background);
-	width: 10rem;
-	text-align: center;
-	padding: 0.5rem;
-	min-height: 5rem;
+	border-radius: 6px;
+	border: 3px solid var(--foreground);
+	cursor: pointer;
 	display: flex;
 	flex-direction: row;
-	align-items: center;
 	justify-content: center;
-	border: 3px solid var(--foreground);
-	border-radius: 6px;
-	cursor: pointer;
+	min-height: 5rem;
+	padding: 0.5rem;
+	text-align: center;
+	width: 10rem;
 }
 
 .node.completed {
@@ -46,21 +61,6 @@ main {
 
 .node.fake-node {
 	opacity: 0;
-}
-
-.dialog {
-	background: var(--background);
-	color: var(--foreground);
-	min-width: min(50rem, 60vw);
-	border: 3px solid var(--foreground);
-	border-radius: 6px;
-}
-
-.close-button {
-	background: none;
-	border: 1px solid var(--foreground);
-	border-radius: 2px;
-	color: var(--foreground);
 }
 
 .row {
