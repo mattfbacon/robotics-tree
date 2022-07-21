@@ -392,6 +392,8 @@ dependencies = [
  "askama",
  "comrak",
  "itertools",
+ "serde",
+ "toml",
 ]
 
 [[package]]
