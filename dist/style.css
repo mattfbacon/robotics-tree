@@ -13,7 +13,9 @@
 body {
 	background: var(--background);
 	color: var(--foreground);
+	display: grid;
 	font-family: sans-serif;
+	grid-template-columns: auto 1fr;
 	margin: 1rem;
 }
 
