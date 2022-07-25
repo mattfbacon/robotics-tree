@@ -8,6 +8,7 @@
 </aside>
 <main>
 	{% for (index, item) in main_items.iter().enumerate() -%}
+	<img src="/img/line.svg" role="presentation" class="line" />
 	<div class="row">
 		<article
 			class="node"
@@ -18,7 +19,23 @@
 			<h1>{{item.item.name}}</h1>
 		</article>
 	</div>
-	{%- endfor %} {% for (index, items) in itertools::Itertools::zip_longest(programming_items.iter(), building_items.iter()).enumerate() -%}
+	{%- endfor %}
+	<img src="/img/line-fork.svg" role="presentation" class="line line-fork" />
+	{% for (index, items) in itertools::Itertools::zip_longest(programming_items.iter(), building_items.iter()).enumerate() -%} {% if index > 0 -%}
+	<div class="line-row" role="presentation">
+		{% if index < programming_items.len() -%}
+		<img src="/img/line.svg" role="presentation" class="line" />
+		{% else %}
+		<img src="/img/line-empty.svg" role="presentation" class="line" />
+		{%- endif %}
+		<div class="line-row-spacer"></div>
+		{% if index < building_items.len() -%}
+		<img src="/img/line.svg" role="presentation" class="line" />
+		{% else %}
+		<img src="/img/line-empty.svg" role="presentation" class="line" />
+		{%- endif %}
+	</div>
+	{%- endif %}
 	<div class="row">
 		{% if let Some(programming_item) = items.as_ref().left() -%}
 		<article
