@@ -39,6 +39,7 @@ mod filters {
 #[derive(askama::Template)]
 #[template(path = "index.html")]
 struct IndexTemplate<'a> {
+	doc_root: &'a str,
 	main_items: &'a [ExternalItem],
 	programming_items: &'a [ExternalItem],
 	building_items: &'a [ExternalItem],
@@ -65,6 +66,7 @@ impl IndexTemplate<'_> {
 #[derive(askama::Template)]
 #[template(path = "sidebar_page.html")]
 struct SidebarPageTemplate<'a> {
+	doc_root: &'a str,
 	item: &'a ExternalItem,
 }
 
@@ -173,7 +175,10 @@ fn main() {
 	let building_items = load_items("building");
 	let sidebar_items = load_items("sidebar");
 
+	let doc_root = std::env::var("DOC_ROOT").ok().unwrap_or("".to_owned());
+
 	IndexTemplate {
+		doc_root: &doc_root,
 		main_items: &main_items,
 		programming_items: &programming_items,
 		building_items: &building_items,
@@ -184,8 +189,11 @@ fn main() {
 
 	for sidebar_item in &sidebar_items {
 		let mut file = open_output(format!("{}.html", sidebar_item.slug));
-		SidebarPageTemplate { item: sidebar_item }
-			.render_into(&mut file)
-			.expect("Rendering sidebar page template");
+		SidebarPageTemplate {
+			doc_root: &doc_root,
+			item: sidebar_item,
+		}
+		.render_into(&mut file)
+		.expect("Rendering sidebar page template");
 	}
 }
