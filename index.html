@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Robotics Curriculum</title>
+		<link rel="stylesheet" href="/style.css" />
+	</head>
+	<body>
+		
+<aside id="sidebar">
+	<ul>
+		<li><a href="/screws.html" target="_blank">Screws</a></li>
+	</ul>
+</aside>
+<main>
+	<img src="/img/line.svg" role="presentation" class="line" />
+	<div class="row">
+		<article
+			class="node"
+			id="node-main-0"
+			onclick="document.getElementById('dialog-main-0').showModal();"
+			data-set-completed="main-0"
+		>
+			<h1>Abc</h1>
+		</article>
+	</div><img src="/img/line.svg" role="presentation" class="line" />
+	<div class="row">
+		<article
+			class="node"
+			id="node-main-1"
+			onclick="document.getElementById('dialog-main-1').showModal();"
+			data-set-completed="main-1"
+		>
+			<h1>Abc2</h1>
+		</article>
+	</div>
+	<img src="/img/line-fork.svg" role="presentation" class="line line-fork" />
+	
+	<div class="row">
+		<article
+			class="node"
+			id="node-programming-0"
+			onclick="document.getElementById('dialog-programming-0').showModal();"
+			data-set-completed="programming-0"
+		>
+			<h1>A Program Bc</h1>
+		</article> <article
+			class="node"
+			id="node-building-0"
+			onclick="document.getElementById('dialog-building-0').showModal();"
+			data-set-completed="building-0"
+		>
+			<h1>A Building Bc</h1>
+		</article>
+	</div><div class="line-row" role="presentation">
+		
+		<img src="/img/line-empty.svg" role="presentation" class="line" />
+		<div class="line-row-spacer"></div>
+		<img src="/img/line.svg" role="presentation" class="line" />
+		
+	</div>
+	<div class="row">
+		<article class="node fake-node"></article> <article
+			class="node"
+			id="node-building-1"
+			onclick="document.getElementById('dialog-building-1').showModal();"
+			data-set-completed="building-1"
+		>
+			<h1>Dde</h1>
+		</article>
+	</div>
+</main>
+<dialog class="dialog" id="dialog-main-0">
+	<form method="dialog">
+		<input class="close-button" type="submit" value="X" label="Close" />
+	</form>
+	<h1>Abc</h1>
+	<p>def</p>
+	<hr />
+	<div class="content"><p>content for abc</p>
+<h2>some header to demonstrate markdown capability</h2>
+<p><strong>and some bold</strong></p>
+</div>
+	<hr />
+	<label for="completed-checkbox-main-0">Completed</label>
+	<input
+		type="checkbox"
+		id="completed-checkbox-main-0"
+		onchange="set_completed('main', 0, event.target.checked);"
+		data-set-checked="main-0"
+	/>
+</dialog><dialog class="dialog" id="dialog-main-1">
+	<form method="dialog">
+		<input class="close-button" type="submit" value="X" label="Close" />
+	</form>
+	<h1>Abc2</h1>
+	<p>def2</p>
+	<hr />
+	<div class="content"><p>content for abc2</p>
+<h3>another header to demonstrate markdown capability</h3>
+<p><em>and some italic</em></p>
+</div>
+	<hr />
+	<label for="completed-checkbox-main-1">Completed</label>
+	<input
+		type="checkbox"
+		id="completed-checkbox-main-1"
+		onchange="set_completed('main', 1, event.target.checked);"
+		data-set-checked="main-1"
+	/>
+</dialog><dialog class="dialog" id="dialog-programming-0">
+	<form method="dialog">
+		<input class="close-button" type="submit" value="X" label="Close" />
+	</form>
+	<h1>A Program Bc</h1>
+	<p>a</p>
+	<hr />
+	<div class="content"><h1>so you want to program</h1>
+<p>what about a header</p>
+<h2>here’s the header</h2>
+<p>maybe a table</p>
+<table>
+<thead>
+<tr>
+<th align="left">header 1</th>
+<th align="center">header 2</th>
+<th align="right">header 3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">and the value of column 1</td>
+<td align="center">and the value of column 2</td>
+<td align="right">and the value of column 3</td>
+</tr>
+</tbody>
+</table>
+</div>
+	<hr />
+	<label for="completed-checkbox-programming-0">Completed</label>
+	<input
+		type="checkbox"
+		id="completed-checkbox-programming-0"
+		onchange="set_completed('programming', 0, event.target.checked);"
+		data-set-checked="programming-0"
+	/>
+</dialog><dialog class="dialog" id="dialog-building-0">
+	<form method="dialog">
+		<input class="close-button" type="submit" value="X" label="Close" />
+	</form>
+	<h1>A Building Bc</h1>
+	<p>b</p>
+	<hr />
+	<div class="content"><h1>so you want to build</h1>
+<p>how about a list then</p>
+<ul>
+<li>item 1</li>
+<li>item 2</li>
+</ul>
+</div>
+	<hr />
+	<label for="completed-checkbox-building-0">Completed</label>
+	<input
+		type="checkbox"
+		id="completed-checkbox-building-0"
+		onchange="set_completed('building', 0, event.target.checked);"
+		data-set-checked="building-0"
+	/>
+</dialog><dialog class="dialog" id="dialog-building-1">
+	<form method="dialog">
+		<input class="close-button" type="submit" value="X" label="Close" />
+	</form>
+	<h1>Dde</h1>
+	<p>another building item</p>
+	<hr />
+	<div class="content"><p>hello</p>
+</div>
+	<hr />
+	<label for="completed-checkbox-building-1">Completed</label>
+	<input
+		type="checkbox"
+		id="completed-checkbox-building-1"
+		onchange="set_completed('building', 1, event.target.checked);"
+		data-set-checked="building-1"
+	/>
+</dialog>
+<script>
+	function set_completed(category_name, index, is_completed) {
+		const key = `completed-${category_name}-${index}`;
+		if (is_completed) {
+			localStorage.setItem(key, "yes");
+		} else {
+			localStorage.removeItem(key);
+		}
+		document.getElementById(`node-${category_name}-${index}`).classList.toggle("completed", is_completed);
+	}
+	for (const element of document.querySelectorAll("[data-set-completed]")) {
+		element.classList.toggle("completed", localStorage.getItem("completed-" + element.dataset.setCompleted) !== null);
+	}
+	for (const element of document.querySelectorAll("[data-set-checked]")) {
+		element.checked = localStorage.getItem("completed-" + element.dataset.setChecked) !== null;
+	}
+</script>
+
+	</body>
+</html>
