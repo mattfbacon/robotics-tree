@@ -1,0 +1,21 @@
+{
+  "name": "Generate and Deploy Static Site",
+  "on": ["push"],
+  "jobs":
+    {
+      "generate-and-deploy":
+        {
+          "runs-on": "ubuntu-latest",
+          "steps":
+            [
+              { "name": "Check out", "uses": "actions/checkout@v3" },
+              { "name": "Generate", "run": "cargo run" },
+              {
+                "name": "Deploy",
+                "uses": "peaceiris/actions-gh-pages@v3",
+                "with": { "github_token": "${{ secrets.GITHUB_TOKEN }}", "publish_dir": "./dist" },
+              },
+            ],
+        },
+    },
+}
