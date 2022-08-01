@@ -88,6 +88,6 @@ main {
 #sidebar ul {
 	margin: 1rem;
 	margin-left: 2rem;
-	min-width: 10vw;
+	min-width: min(8rem, 15vw);
 	padding: 0;
 }
