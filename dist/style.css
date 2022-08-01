@@ -18,6 +18,15 @@
 		--foreground: #ddd;
 	}
 
+	a:link {
+		color: #5e9d9f;
+	}
+	a:visited {
+		color: #a589c1;
+	}
+	a:active {
+		color: #8d6ab0;
+	}
 }
 
 body {
