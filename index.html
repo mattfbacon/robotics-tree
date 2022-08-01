@@ -10,10 +10,12 @@
 	</head>
 	<body>
 		<aside id="sidebar">
+	<button id="sidebar-close" onclick="sidebar.classList.remove('shown')" title="Close sidebar">&#x25c4;</button>
 	<ul>
 		<li><a href="/robotics-tree/screws.html">Screws</a></li>
 	</ul>
 </aside>
+<button id="sidebar-open" onclick="sidebar.classList.add('shown')" title="Open sidebar">&#x25ba;</button>
 <main>
 	<img src="/robotics-tree/img/line.svg" role="presentation" class="line" />
 	<div class="row">
