@@ -1,4 +1,9 @@
-{% extends "_layout.html" %} {% block title %}Robotics Curriculum{% endblock %} {% block body %}
+{% extends "_layout.html" %}
+{% block title -%}Robotics Curriculum{%- endblock %}
+{% block style -%}
+	<link rel="stylesheet" href="{{doc_root}}/index.css" />
+{%- endblock %}
+{% block body -%}
 <aside id="sidebar">
 	<ul>
 		{% for item in sidebar_items -%}
@@ -99,4 +104,4 @@
 		element.checked = localStorage.getItem("completed-" + element.dataset.setChecked) !== null;
 	}
 </script>
-{% endblock %}
+{%- endblock %}
