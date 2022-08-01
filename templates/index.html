@@ -2,7 +2,7 @@
 <aside id="sidebar">
 	<ul>
 		{% for item in sidebar_items -%}
-		<li><a href="{{doc_root}}/{{item.slug}}.html" target="_blank">{{item.item.name}}</a></li>
+		<li><a href="{{doc_root}}/{{item.slug}}.html">{{item.item.name}}</a></li>
 		{%- endfor %}
 	</ul>
 </aside>
