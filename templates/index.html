@@ -5,12 +5,14 @@
 {%- endblock %}
 {% block body -%}
 <aside id="sidebar">
+	<button id="sidebar-close" onclick="sidebar.classList.remove('shown')" title="Close sidebar">&#x25c4;</button>
 	<ul>
 		{% for item in sidebar_items -%}
 		<li><a href="{{doc_root}}/{{item.slug}}.html">{{item.item.name}}</a></li>
 		{%- endfor %}
 	</ul>
 </aside>
+<button id="sidebar-open" onclick="sidebar.classList.add('shown')" title="Open sidebar">&#x25ba;</button>
 <main>
 	{% for (index, item) in main_items.iter().enumerate() -%}
 	<img src="{{doc_root}}/img/line.svg" role="presentation" class="line" />

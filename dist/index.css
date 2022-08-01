@@ -83,11 +83,54 @@ main {
 
 #sidebar {
 	background-color: var(--background-secondary);
+	min-width: min(8rem, 15vw);
+	padding: 1rem;
+	padding-left: 2rem;
+	z-index: 1;
 }
 
 #sidebar ul {
-	margin: 1rem;
-	margin-left: 2rem;
-	min-width: min(8rem, 15vw);
+	margin: 0;
 	padding: 0;
+}
+
+#sidebar-open, #sidebar-close {
+	display: none; /* overriden in narrow media query */
+	position: absolute;
+	top: 0;
+	margin: 1rem;
+	border: none;
+	background: none;
+}
+
+#sidebar-open {
+	left: 0;
+}
+
+#sidebar-close {
+	right: 0;
+}
+
+@media (max-width: 35rem) {
+	body {
+		display: inline-block;
+	}
+
+	#sidebar {
+		min-width: unset;
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100vw;
+		height: 100vh;
+		transform: translate(-100vw);
+	}
+
+	#sidebar.shown {
+		transform: none;
+	}
+
+	#sidebar-open, #sidebar-close {
+		display: block;
+	}
 }
