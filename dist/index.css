@@ -80,3 +80,14 @@ main {
 	flex-direction: row;
 	gap: var(--spacing);
 }
+
+#sidebar {
+	background-color: var(--background-secondary);
+}
+
+#sidebar ul {
+	margin: 1rem;
+	margin-left: 2rem;
+	min-width: 10vw;
+	padding: 0;
+}
