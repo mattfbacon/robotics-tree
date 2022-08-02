@@ -1,7 +1,7 @@
-<!--
+---
 name = "Installing a Motor"
 description = "In this document, we install a motor onto a C-channel, and then control it with a built-in VEX program."
--->
+---
 
 ## Step 1
 
@@ -28,10 +28,10 @@ Tools you will need:
 ## Step 2
 
 Place a flat bearing inside the C-channel with 2 screws and an axle. Place a shaft collar on the inside of the C-channel, on the axle. See the note below about choosing screw length for motors.
-| ![axle and two motors](./img/1-2-1.png) | ![axle and two motors with collar](./img/1-2-2.png) |
+| ![axle and two motors](./1-2-1.png) | ![axle and two motors with collar](./1-2-2.png) |
 | - | - |
 
 ### Note: Choosing screw length for motors
 
-| C | ![max screw length for motor](./img/1-2-3.png) |
+| C | ![max screw length for motor](./1-2-3.png) |
 | Choose a screw that will have enough room to bury deep in the motor, but not too deep. Try taking a long screw, like the one in the image at right, and spin it into a motor screw slot with your hand only. As a rule of thumb, as soon as you have to use your screwdriver to drive the motor screw, you are probably going too far (or the screw thread is bad). The image at right shows the maximum amount that the screw should go into the motor. | - |

@@ -1,4 +1,7 @@
-{% extends "_layout.html" %} {% block title %}{{item.item.name}} - Robotics Curriculum{% endblock %} {% block body %}
-<h1>{{item.item.name}}</h1>
-<p>{{item.item.description}}</p>
-{{item.item.content|md|safe}} {% endblock body %}
+{% extends "_layout.html" %}
+{% block title -%}{{item.item.name}} - Robotics Curriculum{%- endblock %}
+{% block body -%}
+	<h1>{{item.item.name}}</h1>
+	<p>{{item.item.description}}</p>
+	{{item.item.content|safe}}
+{%- endblock body %}

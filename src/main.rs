@@ -1,40 +1,27 @@
+#![deny(
+	absolute_paths_not_starting_with_crate,
+	future_incompatible,
+	keyword_idents,
+	macro_use_extern_crate,
+	meta_variable_misuse,
+	missing_abi,
+	missing_copy_implementations,
+	non_ascii_idents,
+	nonstandard_style,
+	noop_method_call,
+	pointer_structural_match,
+	private_in_public,
+	rust_2018_idioms
+)]
+#![warn(unused_qualifications)]
+#![warn(clippy::pedantic)]
+#![forbid(unsafe_code)]
+
 use std::path::Path;
 
 use askama::Template as _;
 
-mod filters {
-	pub fn md(s: &str) -> ::askama::Result<String> {
-		Ok(comrak::markdown_to_html(
-			s,
-			&comrak::ComrakOptions {
-				extension: comrak::ComrakExtensionOptions {
-					autolink: true,
-					description_lists: true,
-					footnotes: true,
-					front_matter_delimiter: None,
-					header_ids: None,
-					strikethrough: true,
-					superscript: true,
-					table: true,
-					tagfilter: true,
-					tasklist: true,
-				},
-				parse: comrak::ComrakParseOptions {
-					smart: true,
-					default_info_string: None,
-				},
-				render: comrak::ComrakRenderOptions {
-					hardbreaks: false,
-					github_pre_lang: true,
-					width: 0,
-					unsafe_: true,
-					escape: false,
-					list_style: comrak::ListStyleType::Dash,
-				},
-			},
-		))
-	}
-}
+mod render_markdown;
 
 #[derive(askama::Template)]
 #[template(path = "index.html")]
@@ -83,7 +70,8 @@ impl<W: std::io::Write> std::fmt::Write for Writer<W> {
 	}
 }
 
-fn open_output(name: impl AsRef<std::path::Path>) -> Writer<impl std::io::Write> {
+fn open_output(name: impl AsRef<Path>) -> Writer<impl std::io::Write> {
+	eprintln!("open_output on {:?}", name.as_ref());
 	let writer = std::fs::File::options()
 		.write(true)
 		.truncate(true)
@@ -102,6 +90,7 @@ pub struct ItemMeta {
 pub struct Item {
 	pub name: Box<str>,
 	pub description: Box<str>,
+	/// already rendered to HTML
 	pub content: Box<str>,
 }
 
@@ -111,17 +100,20 @@ struct ExternalItem {
 	item: Item,
 }
 
-fn load_items(dir: &str) -> Vec<ExternalItem> {
+fn load_items(dir: &str, doc_root: &str) -> Vec<ExternalItem> {
 	let mut items: Vec<_> = std::fs::read_dir(Path::new("items").join(dir))
-		.expect("reading sidebar items directory")
+		.expect("reading items directory")
 		.into_iter()
-		.map(|entry| entry.expect("reading sidebar item file"))
+		.map(|entry| entry.expect("reading item file"))
 		.filter(|entry| entry.path().extension().map_or(false, |ext| ext == "md"))
 		.map(|entry| {
+			let path = entry.path();
+			eprintln!("loading item {path:?}");
+
 			let (id, slug) = entry
 				.file_name()
 				.to_str()
-				.expect("sidebar item file name is invalid UTF-8")
+				.expect("item file name is invalid UTF-8")
 				.split_once('-')
 				.and_then(|(id, slug)| slug.strip_suffix(".md").map(move |slug| (id, slug)))
 				.and_then(|(id, slug)| {
@@ -129,19 +121,12 @@ fn load_items(dir: &str) -> Vec<ExternalItem> {
 						.ok()
 						.map(move |id| (id, slug.to_owned().into_boxed_str()))
 				})
-				.expect("sidebar item file name is not in format `<id>-<slug>.md`");
+				.expect("item file name is not in format `<id>-<slug>.md`");
 
-			let path = entry.path();
-			let content = std::fs::read_to_string(&path).expect("reading sidebar item file");
-			let (meta, content) = content
-				.strip_prefix("<!--")
-				.and_then(|content| content.split_once("-->"))
-				.expect("sidebar item file does not start with an HTML comment");
-			let (meta, content) = (meta.trim(), content.trim());
-
-			let ItemMeta { name, description } =
-				toml::from_str(meta).expect("sidebar item meta is not valid TOML");
-			let content = content.to_owned().into_boxed_str();
+			let input = std::fs::read_to_string(&path).expect("reading item file");
+			let (content, ItemMeta { name, description }) =
+				render_markdown::render(&input, dir, doc_root);
+			let content = content.into_boxed_str();
 
 			ExternalItem {
 				id,
@@ -159,23 +144,19 @@ fn load_items(dir: &str) -> Vec<ExternalItem> {
 }
 
 fn main() {
-	for entry in std::fs::read_dir("dist").expect("reading dist directory") {
-		let entry = entry.expect("reading dist directory entry").path();
-		if entry.extension().map_or(false, |ext| ext == "html") {
-			std::fs::remove_file(entry).expect("deleting HTML file in dist directory");
-		}
-	}
+	let doc_root = std::env::var("DOC_ROOT").ok().unwrap_or("".to_owned());
 
-	std::fs::create_dir_all("dist").expect("creating dist directory");
+	if Path::new("dist").exists() {
+		std::fs::remove_dir_all("dist").expect("clearing dist directory");
+	}
+	dircpy::copy_dir("static", "dist").expect("copying static files to dist directory");
 
 	let mut index = open_output("index.html");
 
-	let main_items = load_items("main");
-	let programming_items = load_items("programming");
-	let building_items = load_items("building");
-	let sidebar_items = load_items("sidebar");
-
-	let doc_root = std::env::var("DOC_ROOT").ok().unwrap_or("".to_owned());
+	let main_items = load_items("main", &doc_root);
+	let programming_items = load_items("programming", &doc_root);
+	let building_items = load_items("building", &doc_root);
+	let sidebar_items = load_items("sidebar", &doc_root);
 
 	IndexTemplate {
 		doc_root: &doc_root,
