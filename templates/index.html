@@ -1,21 +1,21 @@
 {% extends "_layout.html" %}
 {% block title -%}Robotics Curriculum{%- endblock %}
 {% block style -%}
-	<link rel="stylesheet" href="{{doc_root}}/index.css" />
+	<link rel="stylesheet" href="index.css" />
 {%- endblock %}
 {% block body -%}
 <aside id="sidebar">
 	<button id="sidebar-close" onclick="sidebar.classList.remove('shown')" title="Close sidebar">&#x25c4;</button>
 	<ul>
 		{% for item in sidebar_items -%}
-		<li><a href="{{doc_root}}/{{item.slug}}.html">{{item.item.name}}</a></li>
+		<li><a href="{{item.slug}}.html">{{item.item.name}}</a></li>
 		{%- endfor %}
 	</ul>
 </aside>
 <button id="sidebar-open" onclick="sidebar.classList.add('shown')" title="Open sidebar">&#x25ba;</button>
 <main>
 	{% for (index, item) in main_items.iter().enumerate() -%}
-	<img src="{{doc_root}}/img/line.svg" role="presentation" class="line" />
+	<img src="img/line.svg" role="presentation" class="line" />
 	<div class="row">
 		<article
 			class="node"
@@ -27,19 +27,19 @@
 		</article>
 	</div>
 	{%- endfor %}
-	<img src="{{doc_root}}/img/line-fork.svg" role="presentation" class="line line-fork" />
+	<img src="img/line-fork.svg" role="presentation" class="line line-fork" />
 	{% for (index, items) in itertools::Itertools::zip_longest(programming_items.iter(), building_items.iter()).enumerate() -%} {% if index > 0 -%}
 	<div class="line-row" role="presentation">
 		{% if index < programming_items.len() -%}
-		<img src="{{doc_root}}/img/line.svg" role="presentation" class="line" />
+		<img src="img/line.svg" role="presentation" class="line" />
 		{% else %}
-		<img src="{{doc_root}}/img/line-empty.svg" role="presentation" class="line" />
+		<img src="img/line-empty.svg" role="presentation" class="line" />
 		{%- endif %}
 		<div class="line-row-spacer"></div>
 		{% if index < building_items.len() -%}
-		<img src="{{doc_root}}/img/line.svg" role="presentation" class="line" />
+		<img src="img/line.svg" role="presentation" class="line" />
 		{% else %}
-		<img src="{{doc_root}}/img/line-empty.svg" role="presentation" class="line" />
+		<img src="img/line-empty.svg" role="presentation" class="line" />
 		{%- endif %}
 	</div>
 	{%- endif %}

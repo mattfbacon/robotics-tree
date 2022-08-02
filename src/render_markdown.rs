@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use crate::ItemMeta;
 
-pub fn render(input: &str, category: &str, doc_root: &str) -> (String, ItemMeta) {
+pub fn render(input: &str, category: &str) -> (String, ItemMeta) {
 	use comrak::nodes::NodeValue;
 	use comrak::{
 		format_html, parse_document, Arena, ComrakExtensionOptions, ComrakOptions, ComrakParseOptions,
@@ -72,7 +72,7 @@ pub fn render(input: &str, category: &str, doc_root: &str) -> (String, ItemMeta)
 							.collect::<PathBuf>(),
 					)
 					.expect("copying image from items directory to dist directory");
-					image.url = format!("{doc_root}/img/{category}/{relative_path}").into_bytes();
+					image.url = format!("img/{category}/{relative_path}").into_bytes();
 				}
 			}
 			_ => (),

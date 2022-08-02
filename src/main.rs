@@ -100,7 +100,7 @@ struct ExternalItem {
 	item: Item,
 }
 
-fn load_items(dir: &str, doc_root: &str) -> Vec<ExternalItem> {
+fn load_items(dir: &str) -> Vec<ExternalItem> {
 	let mut items: Vec<_> = std::fs::read_dir(Path::new("items").join(dir))
 		.expect("reading items directory")
 		.into_iter()
@@ -124,8 +124,7 @@ fn load_items(dir: &str, doc_root: &str) -> Vec<ExternalItem> {
 				.expect("item file name is not in format `<id>-<slug>.md`");
 
 			let input = std::fs::read_to_string(&path).expect("reading item file");
-			let (content, ItemMeta { name, description }) =
-				render_markdown::render(&input, dir, doc_root);
+			let (content, ItemMeta { name, description }) = render_markdown::render(&input, dir);
 			let content = content.into_boxed_str();
 
 			ExternalItem {
@@ -153,10 +152,10 @@ fn main() {
 
 	let mut index = open_output("index.html");
 
-	let main_items = load_items("main", &doc_root);
-	let programming_items = load_items("programming", &doc_root);
-	let building_items = load_items("building", &doc_root);
-	let sidebar_items = load_items("sidebar", &doc_root);
+	let main_items = load_items("main");
+	let programming_items = load_items("programming");
+	let building_items = load_items("building");
+	let sidebar_items = load_items("sidebar");
 
 	IndexTemplate {
 		doc_root: &doc_root,
