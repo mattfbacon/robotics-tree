@@ -38,3 +38,18 @@ body {
 	width: 100vw;
 }
 
+.row-container {
+	display: flex;
+	flex-direction: row;
+	justify-content: stretch;
+	gap: var(--spacing);
+}
+
+.row-container > div {
+	flex: 1;
+	position: relative;
+}
+
+.row-container > div * {
+	max-width: 100%;
+}

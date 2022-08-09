@@ -44,6 +44,25 @@ pub fn render(input: &str, category: &str) -> (String, ItemMeta) {
 	let root = parse_document(&arena, input, &OPTIONS);
 	let mut metadata: Option<ItemMeta> = None;
 
+	let copy_url = |url_str: &str| {
+		if let Some(relative_path) = url_str.strip_prefix("./") {
+			std::fs::create_dir_all(["dist", "img", category].into_iter().collect::<PathBuf>())
+				.expect("ensuring dist subdirectory for items");
+			std::fs::copy(
+				["items", category, relative_path]
+					.into_iter()
+					.collect::<PathBuf>(),
+				["dist", "img", category, relative_path]
+					.into_iter()
+					.collect::<PathBuf>(),
+			)
+			.expect("copying image from items directory to dist directory");
+			Some(format!("img/{category}/{relative_path}"))
+		} else {
+			None
+		}
+	};
+
 	for node in root.descendants() {
 		match &mut node.data.borrow_mut().value {
 			NodeValue::FrontMatter(content) => {
@@ -60,20 +79,34 @@ pub fn render(input: &str, category: &str) -> (String, ItemMeta) {
 			}
 			NodeValue::Image(image) => {
 				let url_str = std::str::from_utf8(&image.url).expect("link URL is not valid UTF-8");
-				if let Some(relative_path) = url_str.strip_prefix("./") {
-					std::fs::create_dir_all(["dist", "img", category].into_iter().collect::<PathBuf>())
-						.expect("ensuring dist subdirectory for items");
-					std::fs::copy(
-						["items", category, relative_path]
-							.into_iter()
-							.collect::<PathBuf>(),
-						["dist", "img", category, relative_path]
-							.into_iter()
-							.collect::<PathBuf>(),
-					)
-					.expect("copying image from items directory to dist directory");
-					image.url = format!("img/{category}/{relative_path}").into_bytes();
+				if let Some(new_url) = copy_url(url_str) {
+					image.url = new_url.into_bytes();
 				}
+			}
+			NodeValue::HtmlBlock(block) => {
+				let content_str =
+					std::str::from_utf8(&block.literal).expect("HTML content is not valid UTF-8");
+				let mut fragment = scraper::Html::parse_fragment(content_str);
+				assert_eq!(fragment.errors, &[] as &[std::borrow::Cow<'_, str>]);
+				for value in fragment.tree.values_mut() {
+					if let scraper::Node::Element(element) = value {
+						if element.name().eq_ignore_ascii_case("img") {
+							if let Some(src) = element.attrs.get_mut(&html5ever::QualName {
+								prefix: None,
+								ns: {
+									use html5ever::namespace_url; // `ns!` macro is unhygienic
+									html5ever::ns!()
+								},
+								local: html5ever::local_name!("src"),
+							}) {
+								if let Some(new_url) = copy_url(src.as_ref()) {
+									*src = new_url.into();
+								}
+							}
+						}
+					}
+				}
+				block.literal = fragment.root_element().html().into_bytes();
 			}
 			_ => (),
 		}
