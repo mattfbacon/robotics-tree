@@ -12,4 +12,3 @@ Gather the necessary parts:
 - VEX Controller
 - VEX Radio
 - VEX Wires (x2)
--

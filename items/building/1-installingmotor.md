@@ -78,6 +78,7 @@ Turn on the CORTEX and controller. After the controller connects to the CORTEX w
   <div><p><img src="./1-6-1.png" alt="controller screen indicating that the controller is looking for a cortex"></p><p>The controller is looking for a CORTEX.</p></div>
   <div><p><img src="./1-6-2.png" alt="controller screen indicating that the controller is wired to the cortex"></p><p>The controller is wired to the CORTEX.</p></div>
   <div><p><img src="./1-6-3.png" alt="controller screen indicating that the controller is wirelessly connected to the cortex"></p><p>The controller is wirelessly controlled to the CORTEX, via the radio. This is usually how the controller should be set up.</p></div>
+
 </div>
 
 ## Step 7
