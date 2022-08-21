@@ -31,7 +31,7 @@ Place a flat bearing inside the C-channel with 2 screws and an axle. Place a sha
 
 <div class="row-container">
   <div><p><img src="./1-2-1.png" alt="axle with two screws"></p></div>
-  <div><img alt="axle with two screws and a collar" src="./1-2-2.png"></p></div>
+  <div><p><img alt="axle with two screws and a collar" src="./1-2-2.png"></p></div>
 </div>
 
 ### Note: Choosing screw length for motors
@@ -92,7 +92,7 @@ Turn on the CORTEX and controller. After the controller connects to the CORTEX w
 Select the “Drive” program on your controller (see the note below). Then hit Run, and you are done! You should be able to control the motor with the left joystick.
 
 <div style="display: flex;">
-<p><img src="./1-7-1.png" alt="about to run the 'drive' program"></p>
+  <p><img src="./1-7-1.png" alt="about to run the 'drive' program"></p>
 </div>
 
 ### Note: Controlling the Controller
