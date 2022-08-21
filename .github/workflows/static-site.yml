@@ -9,7 +9,7 @@
           "steps":
             [
               { "name": "Check out", "uses": "actions/checkout@v3" },
-              { "uses": "Swatinem/rust-cache@v2", "cache-on-failure": true },
+              { "uses": "Swatinem/rust-cache@v2", "with": { "cache-on-failure": true } },
               { "name": "Generate", "run": "DOC_ROOT=robotics-tree cargo run" },
               {
                 "name": "Deploy",
