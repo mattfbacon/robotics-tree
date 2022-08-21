@@ -100,6 +100,6 @@ Select the “Drive” program on your controller (see the note below). Then hit
 Refer to the images below for a quick controller overview. Use the reset button if the controller ever freezes up.
 
 <div class="row-container">
-  <div><img src="./1-7-2.png" alt="on the front of the controller: arrow buttons in the bottom left move along menus. the middle power button can be pressed to go back or long pressed to turn off. the A button is used to select and the B button is used to go back."></div>
-  <div><img src="./1-7-3.png" alt="on the back of the controller: there is a hole that contains a reset button which can be pressed with a screwdriver"></div>
+  <div><img src="./1-7-2.png" alt="on the front of the controller: arrow buttons in the bottom left move along menus. the middle power button can be pressed to go back or long pressed to turn off. the A button is used to select and the B button is used to go back." /></div>
+  <div><img src="./1-7-3.png" alt="on the back of the controller: there is a hole that contains a reset button which can be pressed with a screwdriver" /></div>
 </div>
