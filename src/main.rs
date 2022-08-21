@@ -22,6 +22,7 @@ use std::path::Path;
 use askama::Template as _;
 
 mod render_markdown;
+mod validate;
 
 #[derive(askama::Template)]
 #[template(path = "index.html")]
@@ -100,7 +101,7 @@ struct ExternalItem {
 	item: Item,
 }
 
-fn load_items(dir: &str) -> Vec<ExternalItem> {
+fn load_items(dir: &str, failure_channel: &validate::FailureChannel) -> Vec<ExternalItem> {
 	let mut items: Vec<_> = std::fs::read_dir(Path::new("items").join(dir))
 		.expect("reading items directory")
 		.into_iter()
@@ -124,7 +125,9 @@ fn load_items(dir: &str) -> Vec<ExternalItem> {
 				.expect("item file name is not in format `<id>-<slug>.md`");
 
 			let input = std::fs::read_to_string(&path).expect("reading item file");
-			let (content, ItemMeta { name, description }) = render_markdown::render(&input, dir);
+			let arc_path = path.to_string_lossy().into_owned().into();
+			let (content, ItemMeta { name, description }) =
+				render_markdown::render(&arc_path, &input, dir, failure_channel);
 			let content = content.into_boxed_str();
 
 			ExternalItem {
@@ -143,7 +146,9 @@ fn load_items(dir: &str) -> Vec<ExternalItem> {
 }
 
 fn main() {
-	let doc_root = std::env::var("DOC_ROOT").ok().unwrap_or("".to_owned());
+	let doc_root = std::env::var("DOC_ROOT")
+		.ok()
+		.unwrap_or_else(|| "".to_owned());
 
 	if Path::new("dist").exists() {
 		std::fs::remove_dir_all("dist").expect("clearing dist directory");
@@ -152,10 +157,31 @@ fn main() {
 
 	let mut index = open_output("index.html");
 
-	let main_items = load_items("main");
-	let programming_items = load_items("programming");
-	let building_items = load_items("building");
-	let sidebar_items = load_items("sidebar");
+	let (failure_sender, failure_receiver) = std::sync::mpsc::sync_channel(8);
+
+	let main_items = load_items("main", &failure_sender);
+	let programming_items = load_items("programming", &failure_sender);
+	let building_items = load_items("building", &failure_sender);
+	let sidebar_items = load_items("sidebar", &failure_sender);
+
+	drop(failure_sender);
+
+	let mut any_failures = false;
+
+	while let Ok(failure) = failure_receiver.recv() {
+		if !any_failures {
+			eprintln!("\n🚨🚨🚨🚨🚨🚨🚨 ERRORS OCCURRED 🚨🚨🚨🚨🚨🚨🚨\n");
+		}
+
+		any_failures = true;
+		eprintln!("{failure}");
+		eprintln!();
+	}
+
+	if any_failures {
+		eprintln!("🚨🚨🚨🚨🚨🚨🚨 END OF ERRORS 🚨🚨🚨🚨🚨🚨🚨\n");
+		panic!("failures occurred, aborting");
+	}
 
 	IndexTemplate {
 		doc_root: &doc_root,

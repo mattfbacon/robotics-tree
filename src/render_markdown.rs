@@ -1,8 +1,33 @@
 use std::path::PathBuf;
+use std::sync::Arc;
 
 use crate::ItemMeta;
 
-pub fn render(input: &str, category: &str) -> (String, ItemMeta) {
+fn copy_url(url_str: &str, category: &str) -> Option<String> {
+	if let Some(relative_path) = url_str.strip_prefix("./") {
+		std::fs::create_dir_all(["dist", "img", category].into_iter().collect::<PathBuf>())
+			.expect("ensuring dist subdirectory for items");
+		std::fs::copy(
+			["items", category, relative_path]
+				.into_iter()
+				.collect::<PathBuf>(),
+			["dist", "img", category, relative_path]
+				.into_iter()
+				.collect::<PathBuf>(),
+		)
+		.expect("copying image from items directory to dist directory");
+		Some(format!("img/{category}/{relative_path}"))
+	} else {
+		None
+	}
+}
+
+pub fn render(
+	file_path: &Arc<str>,
+	input: &str,
+	category: &str,
+	failure_channel: &crate::validate::FailureChannel,
+) -> (String, ItemMeta) {
 	use comrak::nodes::NodeValue;
 	use comrak::{
 		format_html, parse_document, Arena, ComrakExtensionOptions, ComrakOptions, ComrakParseOptions,
@@ -10,7 +35,7 @@ pub fn render(input: &str, category: &str) -> (String, ItemMeta) {
 	};
 	use once_cell::sync::Lazy;
 
-	const FRONT_MATTER_DELIMITER: &'static str = "---";
+	const FRONT_MATTER_DELIMITER: &str = "---";
 	static OPTIONS: Lazy<ComrakOptions> = Lazy::new(|| ComrakOptions {
 		extension: ComrakExtensionOptions {
 			autolink: true,
@@ -44,30 +69,11 @@ pub fn render(input: &str, category: &str) -> (String, ItemMeta) {
 	let root = parse_document(&arena, input, &OPTIONS);
 	let mut metadata: Option<ItemMeta> = None;
 
-	let copy_url = |url_str: &str| {
-		if let Some(relative_path) = url_str.strip_prefix("./") {
-			std::fs::create_dir_all(["dist", "img", category].into_iter().collect::<PathBuf>())
-				.expect("ensuring dist subdirectory for items");
-			std::fs::copy(
-				["items", category, relative_path]
-					.into_iter()
-					.collect::<PathBuf>(),
-				["dist", "img", category, relative_path]
-					.into_iter()
-					.collect::<PathBuf>(),
-			)
-			.expect("copying image from items directory to dist directory");
-			Some(format!("img/{category}/{relative_path}"))
-		} else {
-			None
-		}
-	};
-
 	for node in root.descendants() {
 		match &mut node.data.borrow_mut().value {
 			NodeValue::FrontMatter(content) => {
 				assert!(metadata.is_none());
-				let content = std::str::from_utf8(&content).expect("item metadata is not valid UTF-8");
+				let content = std::str::from_utf8(content).expect("item metadata is not valid UTF-8");
 				let content = content
 					.trim()
 					.strip_prefix(FRONT_MATTER_DELIMITER)
@@ -79,15 +85,21 @@ pub fn render(input: &str, category: &str) -> (String, ItemMeta) {
 			}
 			NodeValue::Image(image) => {
 				let url_str = std::str::from_utf8(&image.url).expect("link URL is not valid UTF-8");
-				if let Some(new_url) = copy_url(url_str) {
+				if let Some(new_url) = copy_url(url_str, category) {
 					image.url = new_url.into_bytes();
 				}
 			}
 			NodeValue::HtmlBlock(block) => {
 				let content_str =
 					std::str::from_utf8(&block.literal).expect("HTML content is not valid UTF-8");
+				crate::validate::spawn_validation(
+					content_str.to_owned(),
+					Arc::clone(file_path),
+					find_line_in_input(input, content_str)
+						.expect("could not find location of HTML block within input"),
+					failure_channel.clone(),
+				);
 				let mut fragment = scraper::Html::parse_fragment(content_str);
-				assert_eq!(fragment.errors, &[] as &[std::borrow::Cow<'_, str>]);
 				for value in fragment.tree.values_mut() {
 					if let scraper::Node::Element(element) = value {
 						if element.name().eq_ignore_ascii_case("img") {
@@ -99,7 +111,7 @@ pub fn render(input: &str, category: &str) -> (String, ItemMeta) {
 								},
 								local: html5ever::local_name!("src"),
 							}) {
-								if let Some(new_url) = copy_url(src.as_ref()) {
+								if let Some(new_url) = copy_url(src.as_ref(), category) {
 									*src = new_url.into();
 								}
 							}
@@ -117,4 +129,14 @@ pub fn render(input: &str, category: &str) -> (String, ItemMeta) {
 	let output = String::from_utf8(output).expect("generated HTML is not valid UTF-8");
 
 	(output, metadata.expect("no metadata in markdown file"))
+}
+
+pub fn find_line_in_input(input: &str, text: &str) -> Option<u32> {
+	let byte_loc = input.find(text)?;
+	let newlines = input
+		.bytes()
+		.take(byte_loc)
+		.filter(|&ch| ch == b'\n')
+		.count();
+	Some(u32::try_from(newlines).expect("yeah right you have a 4 billion line file") + 1)
 }
