@@ -5,14 +5,14 @@
 {%- endblock %}
 {% block body -%}
 <aside id="sidebar">
-	<button id="sidebar-close" onclick="sidebar.classList.remove('shown')" title="Close sidebar">&#x25c4;</button>
+	<button class="sidebar-button" id="sidebar-close" onclick="sidebar.classList.remove('shown')" title="Close sidebar">&#x25c4;</button>
 	<ul>
 		{% for item in sidebar_items -%}
 		<li><a href="{{item.slug}}.html">{{item.item.name}}</a></li>
 		{%- endfor %}
 	</ul>
 </aside>
-<button id="sidebar-open" onclick="sidebar.classList.add('shown')" title="Open sidebar">&#x25ba;</button>
+<button class="sidebar-button" id="sidebar-open" onclick="sidebar.classList.add('shown')" title="Open sidebar">&#x25ba;</button>
 <main>
 	{% for (index, item) in main_items.iter().enumerate() -%}
 	<img src="img/line.svg" role="presentation" class="line" />
@@ -80,13 +80,15 @@
 	<hr />
 	<div class="content">{{item.content|safe}}</div>
 	<hr />
-	<label for="completed-checkbox-{{category_name}}-{{index}}">Completed</label>
-	<input
-		type="checkbox"
-		id="completed-checkbox-{{category_name}}-{{index}}"
-		onchange="set_completed('{{category_name}}', {{index}}, event.target.checked);"
-		data-set-checked="{{category_name}}-{{index}}"
-	/>
+	<div class="completed-container">
+		<label for="completed-checkbox-{{category_name}}-{{index}}">Completed</label>
+		<input
+			type="checkbox"
+			id="completed-checkbox-{{category_name}}-{{index}}"
+			onchange="set_completed('{{category_name}}', {{index}}, event.target.checked);"
+			data-set-checked="{{category_name}}-{{index}}"
+		/>
+	</div>
 </dialog>
 {%- endfor %}
 <script>
