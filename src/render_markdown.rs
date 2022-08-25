@@ -1,6 +1,13 @@
 use std::path::PathBuf;
 use std::sync::Arc;
 
+use comrak::nodes::NodeValue;
+use comrak::{
+	format_html, parse_document, Arena, ComrakExtensionOptions, ComrakOptions, ComrakParseOptions,
+	ComrakRenderOptions, ListStyleType,
+};
+use once_cell::sync::Lazy;
+
 use crate::ItemMeta;
 
 fn copy_url(url_str: &str, category: &str) -> Option<String> {
@@ -35,47 +42,40 @@ macro_rules! html_name {
 	};
 }
 
+const FRONT_MATTER_DELIMITER: &str = "---";
+static OPTIONS: Lazy<ComrakOptions> = Lazy::new(|| ComrakOptions {
+	extension: ComrakExtensionOptions {
+		autolink: true,
+		description_lists: true,
+		footnotes: true,
+		front_matter_delimiter: Some(FRONT_MATTER_DELIMITER.to_owned()),
+		header_ids: None,
+		strikethrough: true,
+		superscript: true,
+		table: true,
+		tagfilter: true,
+		tasklist: true,
+	},
+	parse: ComrakParseOptions {
+		smart: true,
+		default_info_string: None,
+	},
+	render: ComrakRenderOptions {
+		hardbreaks: false,
+		github_pre_lang: true,
+		width: 0,
+		unsafe_: true,
+		escape: false,
+		list_style: ListStyleType::Dash,
+	},
+});
+
 pub fn render(
 	file_path: &Arc<str>,
 	input: &str,
 	category: &str,
 	failure_channel: &crate::validate::FailureChannel,
 ) -> (String, ItemMeta) {
-	use comrak::nodes::NodeValue;
-	use comrak::{
-		format_html, parse_document, Arena, ComrakExtensionOptions, ComrakOptions, ComrakParseOptions,
-		ComrakRenderOptions, ListStyleType,
-	};
-	use once_cell::sync::Lazy;
-
-	const FRONT_MATTER_DELIMITER: &str = "---";
-	static OPTIONS: Lazy<ComrakOptions> = Lazy::new(|| ComrakOptions {
-		extension: ComrakExtensionOptions {
-			autolink: true,
-			description_lists: true,
-			footnotes: true,
-			front_matter_delimiter: Some(FRONT_MATTER_DELIMITER.to_owned()),
-			header_ids: None,
-			strikethrough: true,
-			superscript: true,
-			table: true,
-			tagfilter: true,
-			tasklist: true,
-		},
-		parse: ComrakParseOptions {
-			smart: true,
-			default_info_string: None,
-		},
-		render: ComrakRenderOptions {
-			hardbreaks: false,
-			github_pre_lang: true,
-			width: 0,
-			unsafe_: true,
-			escape: false,
-			list_style: ListStyleType::Dash,
-		},
-	});
-
 	eprintln!("rendering markdown");
 
 	let arena = Arena::new();
@@ -83,7 +83,8 @@ pub fn render(
 	let mut metadata: Option<ItemMeta> = None;
 
 	for node in root.descendants() {
-		match &mut node.data.borrow_mut().value {
+		let value = &mut node.data.borrow_mut().value;
+		match value {
 			NodeValue::FrontMatter(content) => {
 				assert!(metadata.is_none());
 				let content = std::str::from_utf8(content).expect("item metadata is not valid UTF-8");
@@ -126,6 +127,22 @@ pub fn render(
 				}
 				block.literal = fragment.root_element().html().into_bytes();
 			}
+			NodeValue::CodeBlock(block) => {
+				let html = hl::render_html(
+					std::str::from_utf8(&block.literal)
+						.expect("code block is not valid UTF-8")
+						.trim()
+						.chars()
+						.collect(),
+					std::str::from_utf8(&block.info).unwrap(),
+				);
+
+				// `block_type` is not an enum for bad reasons. 1 = code in <pre> tag
+				*value = NodeValue::HtmlBlock(comrak::nodes::NodeHtmlBlock {
+					block_type: 1,
+					literal: html.into_bytes(),
+				});
+			}
 			_ => (),
 		}
 	}
@@ -136,6 +153,88 @@ pub fn render(
 
 	(output, metadata.expect("no metadata in markdown file"))
 }
+
+/*
+const HIGHLIGHT_NAMES: &[&str] = &[
+	"attribute",
+	"label",
+	"constant",
+	"function-builtin",
+	"function-macro",
+	"function",
+	"keyword",
+	"operator",
+	"property",
+	"punctuation",
+	"punctuation-bracket",
+	"punctuation-delimiter",
+	"string",
+	"string-special",
+	"tag",
+	"escape",
+	"type",
+	"type-builtin",
+	"constructor",
+	"variable",
+	"variable-builtin",
+	"variable-parameter",
+	"comment",
+];
+*/
+
+/*
+fn code_to_html(block_type: &str, code: &str) -> Option<String> {
+	/*
+	use std::fmt::Write as _;
+
+	use tree_sitter_highlight::{HighlightConfiguration, HighlightEvent, Highlighter};
+
+	match block_type {
+		"" => return None,
+		"cpp" | "c++" => (),
+		other => panic!("unknown markdown codeblock language tag {other:?}. supported tags are `c++`/`cpp` or no tag at all."),
+	}
+
+	let mut highlighter = Highlighter::new();
+	let config = HighlightConfiguration::new(
+		tree_sitter_cpp::language(),
+		tree_sitter_cpp::HIGHLIGHT_QUERY,
+		"",
+		"",
+	)
+	.unwrap();
+	let events = highlighter
+		.highlight(&config, code.as_bytes(), None, |_| None)
+		.expect("creating highlighter event stream");
+
+	let mut ret = "<pre><code>".to_owned();
+
+	for event in events {
+		let event = event.expect("reading highlighter event");
+		match event {
+			HighlightEvent::Source { start, end } => {
+				write!(
+					ret,
+					"{}",
+					askama_escape::escape(code.get(start..end).unwrap(), askama_escape::Html)
+				)
+				.unwrap();
+			}
+			HighlightEvent::HighlightStart(Highlight(index)) => {
+				let class = HIGHLIGHT_NAMES[index];
+				write!(ret, "<span class=\"{class}\">").unwrap();
+			}
+			HighlightEvent::HighlightEnd => {
+				write!(ret, "</span>").unwrap();
+			}
+		}
+	}
+
+	write!(ret, "</pre></code>").unwrap();
+	Some(ret)
+	*/
+}
+*/
 
 pub fn find_line_in_input(input: &str, text: &str) -> Option<u32> {
 	let byte_loc = input.find(text)?;

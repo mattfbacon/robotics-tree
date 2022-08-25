@@ -11,6 +11,23 @@
 	--spacing: 1rem;
 }
 
+.hl-c {
+	color: #005cc5;
+}
+.hl-en {
+	color: #6f42c1;
+}
+.hl-k {
+	color: #d73a49;
+	font-weight: bold;
+}
+.hl-s {
+	color: #22863a;
+}
+.hl-cmt {
+	color: lightcoral;
+}
+
 @media (prefers-color-scheme: dark) {
 	:root {
 		--background: #222;
@@ -26,6 +43,23 @@
 	}
 	a:active {
 		color: #8d6ab0;
+	}
+
+	.hl-c {
+		color: #c8e1ff;
+	}
+	.hl-en {
+		color: #b392f0;
+	}
+	.hl-k {
+		color: #ea4a5a;
+		font-weight: bold;
+	}
+	.hl-s {
+		color: #7bcc72;
+	}
+	.hl-cmt {
+		color: lightcoral;
 	}
 }
 
@@ -48,4 +82,15 @@ body {
 .row-container > div {
 	flex: 1;
 	position: relative;
+}
+
+.highlight-table {
+	white-space: pre;
+	font-family: monospace;
+}
+
+.hl-line {
+	padding-right: 1rem;
+	text-align: right;
+	user-select: none;
 }
