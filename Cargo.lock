@@ -450,6 +450,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "hl"
+version = "0.1.3"
+
+[[package]]
 name = "html5ever"
 version = "0.26.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1038,8 +1042,10 @@ name = "robotics-tree"
 version = "0.1.0"
 dependencies = [
  "askama",
+ "askama_escape",
  "comrak",
  "dircpy",
+ "hl",
  "html5ever",
  "itertools",
  "once_cell",
