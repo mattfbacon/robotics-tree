@@ -1,6 +1,8 @@
 [package]
 edition = "2021"
 name = "hl"
-version = "0.1.3"
+version = "0.1.0"
 
 [dependencies]
+askama_escape = "0.10"
+thiserror = "1"

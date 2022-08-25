@@ -128,19 +128,20 @@ pub fn render(
 				block.literal = fragment.root_element().html().into_bytes();
 			}
 			NodeValue::CodeBlock(block) => {
-				let html = hl::render_html(
+				let mut buf = String::new();
+				hl::render_html(
+					&mut buf,
 					std::str::from_utf8(&block.literal)
 						.expect("code block is not valid UTF-8")
-						.trim()
-						.chars()
-						.collect(),
-					std::str::from_utf8(&block.info).unwrap(),
-				);
+						.trim(),
+					std::str::from_utf8(&block.info).unwrap().parse().unwrap(),
+				)
+				.unwrap();
 
 				// `block_type` is not an enum for bad reasons. 1 = code in <pre> tag
 				*value = NodeValue::HtmlBlock(comrak::nodes::NodeHtmlBlock {
 					block_type: 1,
-					literal: html.into_bytes(),
+					literal: buf.into_bytes(),
 				});
 			}
 			_ => (),
@@ -153,88 +154,6 @@ pub fn render(
 
 	(output, metadata.expect("no metadata in markdown file"))
 }
-
-/*
-const HIGHLIGHT_NAMES: &[&str] = &[
-	"attribute",
-	"label",
-	"constant",
-	"function-builtin",
-	"function-macro",
-	"function",
-	"keyword",
-	"operator",
-	"property",
-	"punctuation",
-	"punctuation-bracket",
-	"punctuation-delimiter",
-	"string",
-	"string-special",
-	"tag",
-	"escape",
-	"type",
-	"type-builtin",
-	"constructor",
-	"variable",
-	"variable-builtin",
-	"variable-parameter",
-	"comment",
-];
-*/
-
-/*
-fn code_to_html(block_type: &str, code: &str) -> Option<String> {
-	/*
-	use std::fmt::Write as _;
-
-	use tree_sitter_highlight::{HighlightConfiguration, HighlightEvent, Highlighter};
-
-	match block_type {
-		"" => return None,
-		"cpp" | "c++" => (),
-		other => panic!("unknown markdown codeblock language tag {other:?}. supported tags are `c++`/`cpp` or no tag at all."),
-	}
-
-	let mut highlighter = Highlighter::new();
-	let config = HighlightConfiguration::new(
-		tree_sitter_cpp::language(),
-		tree_sitter_cpp::HIGHLIGHT_QUERY,
-		"",
-		"",
-	)
-	.unwrap();
-	let events = highlighter
-		.highlight(&config, code.as_bytes(), None, |_| None)
-		.expect("creating highlighter event stream");
-
-	let mut ret = "<pre><code>".to_owned();
-
-	for event in events {
-		let event = event.expect("reading highlighter event");
-		match event {
-			HighlightEvent::Source { start, end } => {
-				write!(
-					ret,
-					"{}",
-					askama_escape::escape(code.get(start..end).unwrap(), askama_escape::Html)
-				)
-				.unwrap();
-			}
-			HighlightEvent::HighlightStart(Highlight(index)) => {
-				let class = HIGHLIGHT_NAMES[index];
-				write!(ret, "<span class=\"{class}\">").unwrap();
-			}
-			HighlightEvent::HighlightEnd => {
-				write!(ret, "</span>").unwrap();
-			}
-		}
-	}
-
-	write!(ret, "</pre></code>").unwrap();
-	Some(ret)
-	*/
-}
-*/
 
 pub fn find_line_in_input(input: &str, text: &str) -> Option<u32> {
 	let byte_loc = input.find(text)?;

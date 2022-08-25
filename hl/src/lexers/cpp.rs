@@ -1,325 +1,452 @@
-// ---- DON'T EDIT! THIS IS AUTO GENERATED CODE ---- //
-use std::fmt::Write as _;
+use super::{Token, TokenType};
 
-use crate::lexers::Token;
-
-pub struct Lexer {
-	input: Vec<char>,
-	pub position: usize,
-	pub read_position: usize,
-	pub ch: char,
+#[derive(Copy, Clone)]
+enum State<'a> {
+	Normal,
+	FindKeywordsUpToThen {
+		first_yield: Option<Token<'a>>,
+		up_to: usize,
+		then: Option<SpecialStart>,
+	},
+	StringLiteral {
+		delimiter: u8,
+	},
+	BlockComment,
+	LineComment,
 }
 
-fn is_letter(ch: char) -> bool {
-	ch.is_alphabetic() || ch == '_'
+struct Lexer<'a> {
+	input: &'a [u8],
+	cursor: usize,
+	state: State<'a>,
 }
 
-impl Lexer {
-	pub fn new(input: Vec<char>) -> Self {
-		Self {
-			input,
-			position: 0,
-			read_position: 0,
-			ch: '\0',
-		}
+#[derive(Copy, Clone)]
+enum SpecialStart {
+	StringLiteral { delimiter: u8 },
+	BlockComment,
+	LineComment,
+}
+
+struct FindKeywordResult {
+	start: usize,
+	len: usize,
+	ty: TokenType,
+}
+
+impl<'a> Lexer<'a> {
+	fn remaining(&self) -> &'a [u8] {
+		&self.input[self.cursor..]
 	}
 
-	pub fn read_char(&mut self) {
-		if self.read_position >= self.input.len() {
-			self.ch = '\0';
+	fn next_byte(&mut self) -> Option<u8> {
+		let ret = self.input.get(self.cursor).copied();
+		if ret.is_some() {
+			self.cursor += 1;
+		}
+		ret
+	}
+
+	fn is_first_identifier_char(ch: u8) -> bool {
+		ch.is_ascii_alphabetic() || ch == b'_'
+	}
+
+	fn is_identifier_char(ch: u8) -> bool {
+		ch.is_ascii_alphanumeric() || ch == b'_'
+	}
+
+	#[allow(clippy::range_plus_one)] // would imply the wrong thing
+	fn read_number(haystack: &[u8]) -> &[u8] {
+		fn inner(haystack: &[u8]) -> &[u8] {
+			let mut iter = haystack.iter().copied();
+			match iter.next() {
+				Some(b'0') => match iter.next() {
+					Some(b'x' | b'X') => {
+						let num_hex_digits = iter
+							.take_while(|&ch| ch.is_ascii_hexdigit() || ch == b'\'')
+							.count();
+						&haystack[..num_hex_digits + 2]
+					}
+					Some(other) if b"01234567\'".contains(&other) => {
+						let num_rest_octal_digits = iter.take_while(|ch| b"01234567\'".contains(ch)).count();
+						&haystack[..num_rest_octal_digits + 2]
+					}
+					_ => &haystack[..1],
+				},
+				Some(b'1'..=b'9' | b'.') => {
+					let num_rest_digits = iter
+						.take_while(|&ch| matches!(ch, b'0'..=b'9' | b'\'' | b'.' | b'e'))
+						.count();
+					&haystack[..1 + num_rest_digits]
+				}
+				_ => &[],
+			}
+		}
+		let matched_len = inner(haystack).len();
+		if matched_len == 0 {
+			&[]
 		} else {
-			self.ch = self.input[self.read_position];
+			let mut iter = haystack[matched_len..].iter().copied();
+			match iter.next() {
+				Some(b'u' | b'U') => match iter.next() {
+					Some(b'l' | b'L') => match iter.next() {
+						Some(b'l' | b'L') => &haystack[..matched_len + 3],
+						_ => &haystack[..matched_len + 2],
+					},
+					_ => &haystack[..matched_len + 1],
+				},
+				Some(b'l' | b'L') => match iter.next() {
+					Some(b'l' | b'L') => &haystack[..matched_len + 2],
+					_ => &haystack[..matched_len + 1],
+				},
+				_ => &haystack[..matched_len],
+			}
 		}
-		self.position = self.read_position;
-		self.read_position += 1;
 	}
 
-	pub fn next_token(&mut self) -> Token {
-		let read_identifier = |l: &mut Lexer| -> Vec<char> {
-			let position = l.position;
-			while l.position < l.input.len() && is_letter(l.ch) {
-				l.read_char();
+	fn read_identifier(haystack: &[u8]) -> &[u8] {
+		if let Some(&first) = haystack.first() {
+			if !Self::is_first_identifier_char(first) {
+				return &[];
 			}
-			l.input[position..l.position].to_vec()
-		};
 
-		let read_string = |l: &mut Lexer, ch: char| -> Vec<char> {
-			let position = l.position;
-			l.read_char();
-			while l.position < l.input.len() && l.ch != ch {
-				if l.ch == '\\' {
-					l.read_char();
+			let num_continue = haystack
+				.iter()
+				.skip(1)
+				.take_while(|&&ch| Self::is_identifier_char(ch))
+				.count();
+			#[allow(clippy::range_plus_one)] // would imply the wrong thing
+			&haystack[..1 + num_continue]
+		} else {
+			&[]
+		}
+	}
+
+	const KEYWORDS: &'static [(TokenType, &'static [&'static [u8]])] = &[
+		(
+			TokenType::Constant,
+			&[b"true", b"false", b"this", b"nullptr", b"NULL"],
+		),
+		(
+			TokenType::Keyword,
+			&[
+				b"asm",
+				b"auto",
+				b"bool",
+				b"break",
+				b"const",
+				b"class",
+				b"char",
+				b"catch",
+				b"constexpr",
+				b"continue",
+				b"default",
+				b"define",
+				b"delete",
+				b"do",
+				b"double",
+				b"else",
+				b"enum",
+				b"extern",
+				b"explicit",
+				b"float",
+				b"final",
+				b"friend",
+				b"for",
+				b"if",
+				b"inline",
+				b"int",
+				b"long",
+				b"namespace",
+				b"new",
+				b"noexcept",
+				b"return",
+				b"override",
+				b"operator",
+				b"include",
+				b"endif",
+				b"public",
+				b"private",
+				b"protected",
+				b"pragma",
+				b"short",
+				b"signed",
+				b"sizeof",
+				b"static",
+				b"static_cast",
+				b"struct",
+				b"switch",
+				b"template",
+				b"typedef",
+				b"typename",
+				b"try",
+				b"throw",
+				b"using",
+				b"union",
+				b"unsigned",
+				b"void",
+				b"virtual",
+				b"volatile",
+				b"while",
+			],
+		),
+	];
+
+	fn find_keyword(haystack: &[u8]) -> Option<FindKeywordResult> {
+		let mut idx = 0;
+
+		while idx < haystack.len() {
+			let slice = &haystack[idx..];
+
+			if let Some(b'#') = slice.first().copied() {
+				let identifier = Self::read_identifier(&slice[1..]);
+				if !identifier.is_empty() {
+					return Some(FindKeywordResult {
+						start: idx,
+						len: 1 + identifier.len(),
+						ty: TokenType::Keyword,
+					});
 				}
-				l.read_char();
 			}
-			l.read_char();
-			if l.position > l.input.len() {
-				l.position -= 1;
-				l.read_position -= 1;
-			}
-			l.input[position..l.position].to_vec()
-		};
 
-		let read_number = |l: &mut Lexer| -> Vec<char> {
-			let position = l.position;
-			while l.position < l.input.len() && l.ch.is_numeric() {
-				l.read_char();
-			}
-			l.input[position..l.position].to_vec()
-		};
-
-		let tok: Token;
-		if self.ch == '/' {
-			let next_id = String::from("/*").chars().collect::<Vec<_>>();
-			let next_position = self.position + next_id.len();
-			let end_id = String::from("*/").chars().collect::<Vec<_>>();
-			if self.position + next_id.len() < self.input.len()
-				&& self.input[self.position..next_position] == next_id
+			// these operators can amalgamate together, so not all are listed. for example `*` + `=` = `*=`.
+			if let Some(
+				b'~' | b'!' | b'-' | b'+' | b'&' | b'*' | b'/' | b'%' | b'^' | b'|' | b':' | b'=',
+			) = slice.first().copied()
 			{
-				let mut identifier = next_id.clone();
-				next_id.iter().for_each(|_| self.read_char());
-				let start_position = self.position;
-				while self.position < self.input.len() {
-					if self.ch == '*' {
-						let end_position = self.position + end_id.len();
-						if end_position <= self.input.len() && self.input[self.position..end_position] == end_id
-						{
-							end_id.iter().for_each(|_| self.read_char());
-							break;
-						}
-					}
-					self.read_char();
-				}
-				identifier.append(&mut self.input[start_position..self.position].to_vec());
-				return Token::COMMENT(identifier);
+				return Some(FindKeywordResult {
+					start: idx,
+					len: 1,
+					ty: TokenType::Operator,
+				});
 			}
-		}
-		if self.read_position < self.input.len()
-			&& self.ch == '/'
-			&& self.input[self.read_position] == '/'
-		{
-			return Token::COMMENT(read_string(self, '\n'));
+
+			if let Some(access) = [b".*" as &[u8], b"->*", b".", b"->"]
+				.into_iter()
+				.find(|operator| slice.starts_with(operator))
+			{
+				let next = access.len();
+				let identifier = Self::read_identifier(&slice[next..]);
+				if !identifier.is_empty() {
+					let ty = if slice.get(next + identifier.len()).copied() == Some(b'(') {
+						TokenType::MethodCall
+					} else {
+						TokenType::Field
+					};
+
+					return Some(FindKeywordResult {
+						start: idx + next,
+						len: identifier.len(),
+						ty,
+					});
+				}
+			}
+
+			let identifier = Self::read_identifier(slice);
+			if !identifier.is_empty() {
+				for &(category, members) in Self::KEYWORDS.iter() {
+					if let Some(matched) = members.iter().find(|&&member| identifier == member) {
+						return Some(FindKeywordResult {
+							start: idx,
+							len: matched.len(),
+							ty: category,
+						});
+					}
+				}
+				idx += identifier.len();
+				continue;
+			}
+
+			let number = Self::read_number(slice);
+			if !number.is_empty() {
+				return Some(FindKeywordResult {
+					start: idx,
+					len: number.len(),
+					ty: TokenType::NumberLiteral,
+				});
+			}
+
+			idx += 1;
 		}
 
-		match self.ch {
-			'\n' => {
-				tok = Token::ENDL(self.ch);
-			}
-			'\0' => {
-				tok = Token::EOF;
-			}
-			'0' => {
-				return if self.input[self.read_position] == 'x' {
-					let start_position = self.position;
-					self.read_char();
-					self.read_char();
-					while self.position < self.input.len() && (self.ch.is_numeric() || is_letter(self.ch)) {
-						self.read_char();
-					}
-					let hexadecimal = &self.input[start_position..self.position];
-					Token::INT(hexadecimal.to_vec())
-				} else {
-					let number = read_number(self);
-					Token::INT(number)
-				}
-			}
-			'<' => {
-				tok = Token::STRING(vec![self.ch]);
-			}
-			'>' => {
-				tok = Token::STRING(vec![self.ch]);
-			}
-			_ => {
-				return if is_letter(self.ch) {
-					#[allow(unused_variables)]
-					let start_position = self.position;
-					#[allow(unused_mut)]
-					let mut identifier: Vec<char> = read_identifier(self);
-					if self.ch.is_numeric() {
-						let position = self.position;
-						while self.position < self.input.len() {
-							if !self.ch.is_numeric() && !is_letter(self.ch) {
-								break;
-							}
-							self.read_char();
-						}
-						identifier.append(&mut self.input[position..self.position].to_vec());
-					}
-					match get_keyword_token(&identifier) {
-						Ok(keyword_token) => keyword_token,
-						Err(_) => {
-							if self.ch == '(' {
-								return Token::ENTITY(identifier);
-							} else if self.ch.is_whitespace() {
-								let mut position = self.position;
-								let mut ch = self.input[position];
-								while position < self.input.len() && ch.is_whitespace() {
-									position += 1;
-									if position < self.input.len() {
-										ch = self.input[position];
-									}
-								}
-								if ch == '(' {
-									return Token::ENTITY(identifier);
-								}
-							}
-							Token::IDENT(identifier)
-						}
-					}
-				} else if self.ch.is_numeric() {
-					let identifier: Vec<char> = read_number(self);
-					Token::INT(identifier)
-				} else if self.ch == '\'' {
-					let str_value: Vec<char> = read_string(self, '\'');
-					Token::STRING(str_value)
-				} else if self.ch == '"' {
-					let str_value: Vec<char> = read_string(self, '"');
-					Token::STRING(str_value)
-				} else {
-					Token::ILLEGAL
-				}
+		None
+	}
+
+	fn find_special_start(haystack: &[u8]) -> Option<(usize, SpecialStart)> {
+		let mut iter = haystack.iter().copied().enumerate();
+
+		while let Some((idx, byte)) = iter.next() {
+			match byte {
+				// treat character literals as string literals for simplicity
+				b'"' | b'\'' => return Some((idx, SpecialStart::StringLiteral { delimiter: byte })),
+				b'/' => match iter.next()?.1 {
+					b'/' => return Some((idx, SpecialStart::LineComment)),
+					b'*' => return Some((idx, SpecialStart::BlockComment)),
+					_ => continue,
+				},
+				_ => continue,
 			}
 		}
-		self.read_char();
-		tok
+
+		None
+	}
+
+	fn next_normal(&mut self) -> Token<'a> {
+		let remaining = self.remaining();
+		match Self::find_special_start(remaining) {
+			Some((inner_start, special_type)) => {
+				self.next_find_keywords(None, self.cursor + inner_start, Some(special_type))
+			}
+			None => self.next_find_keywords(None, self.input.len(), None),
+		}
+	}
+
+	fn next_string_literal(&mut self, delimiter: u8) -> Token<'a> {
+		self.state = State::Normal;
+
+		// account for starting quotation mark
+		let start = self.cursor;
+		self.cursor += 1;
+
+		while let Some(byte) = self.next_byte() {
+			match byte {
+				b'\\' => {
+					self.next_byte();
+				}
+				end if end == delimiter => break,
+				_ => continue,
+			}
+		}
+
+		Token {
+			ty: Some(TokenType::StringOrCharLiteral),
+			text: &self.input[start..self.cursor],
+		}
+	}
+
+	fn next_line_comment(&mut self) -> Token<'a> {
+		self.state = State::Normal;
+
+		// account for starting `//`
+		let start = self.cursor;
+		self.cursor += 2;
+
+		while let Some(byte) = self.next_byte() {
+			match byte {
+				b'\n' => break,
+				_ => continue,
+			}
+		}
+
+		Token {
+			ty: Some(TokenType::Comment),
+			text: &self.input[start..self.cursor],
+		}
+	}
+
+	fn next_block_comment(&mut self) -> Token<'a> {
+		self.state = State::Normal;
+
+		// account for starting `/*`
+		let start = self.cursor;
+		self.cursor += 2;
+
+		while let Some(byte) = self.next_byte() {
+			match byte {
+				b'*' => match self.next_byte() {
+					Some(b'/') => break,
+					_ => continue,
+				},
+				_ => continue,
+			}
+		}
+
+		Token {
+			ty: Some(TokenType::Comment),
+			text: &self.input[start..self.cursor],
+		}
+	}
+
+	fn next_find_keywords(
+		&mut self,
+		first_yield: Option<Token<'a>>,
+		up_to: usize,
+		then: Option<SpecialStart>,
+	) -> Token<'a> {
+		if let Some(first_yield) = first_yield {
+			self.state = State::FindKeywordsUpToThen {
+				first_yield: None,
+				up_to,
+				then,
+			};
+			return first_yield;
+		}
+
+		macro_rules! done {
+			() => {
+				self.cursor = up_to;
+				self.state = match then {
+					Some(SpecialStart::StringLiteral { delimiter }) => State::StringLiteral { delimiter },
+					Some(SpecialStart::BlockComment) => State::BlockComment,
+					Some(SpecialStart::LineComment) => State::LineComment,
+					None => State::Normal,
+				};
+			};
+		}
+
+		let remaining = &self.input[self.cursor..up_to];
+		if let Some(FindKeywordResult { start, len, ty }) = Self::find_keyword(remaining) {
+			self.cursor += start + len;
+			let up_to_keyword_token = Token {
+				ty: None,
+				text: &remaining[..start],
+			};
+			let keyword_token = Token {
+				ty: Some(ty),
+				text: &remaining[start..start + len],
+			};
+			self.state = State::FindKeywordsUpToThen {
+				first_yield: Some(keyword_token),
+				up_to,
+				then,
+			};
+			up_to_keyword_token
+		} else {
+			done!();
+			Token {
+				ty: None,
+				text: remaining,
+			}
+		}
 	}
 }
 
-pub fn get_keyword_token(identifier: &[char]) -> Result<Token, String> {
-	let id: String = identifier.iter().collect();
-	match &id[..] {
-		"true" | "false" | "this" | "nullptr" | "NULL" | "size_t" | "int64_t" | "uint32_t" => {
-			Ok(Token::CONSTANT(identifier.to_owned()))
+impl<'a> Iterator for Lexer<'a> {
+	type Item = Token<'a>;
+
+	fn next(&mut self) -> Option<Token<'a>> {
+		if self.remaining().is_empty() {
+			None
+		} else {
+			Some(match self.state {
+				State::Normal => self.next_normal(),
+				State::FindKeywordsUpToThen {
+					first_yield,
+					up_to,
+					then,
+				} => self.next_find_keywords(first_yield, up_to, then),
+				State::StringLiteral { delimiter } => self.next_string_literal(delimiter),
+				State::LineComment => self.next_line_comment(),
+				State::BlockComment => self.next_block_comment(),
+			})
 		}
-		"asm" | "auto" | "bool" | "break" | "const" | "class" | "char" | "catch" | "constexpr"
-		| "continue" | "default" | "define" | "delete" | "do" | "double" | "else" | "enum"
-		| "extern" | "explicit" | "float" | "final" | "friend" | "for" | "if" | "inline" | "int"
-		| "long" | "namespace" | "new" | "noexcept" | "return" | "override" | "operator"
-		| "include" | "endif" | "public" | "private" | "protected" | "pragma" | "short" | "signed"
-		| "sizeof" | "static" | "static_cast" | "struct" | "switch" | "template" | "typedef"
-		| "typename" | "try" | "throw" | "using" | "union" | "unsigned" | "void" | "virtual"
-		| "volatile" | "while" => Ok(Token::KEYWORD(identifier.to_owned())),
-		_ => Err(String::from("Not a keyword")),
 	}
 }
 
-pub fn render_html(input: Vec<char>) -> String {
-	let mut l = Lexer::new(input);
-	l.read_char();
-	let mut html = String::new();
-	let mut line = 1;
-	html.push_str("<table class=\"highlight-table\">");
-	html.push_str("<tbody>");
-	html.push_str("<tr>");
-	write!(
-		html,
-		"<td class=\"hl-line\" data-line=\"{line}\">{line}</td><td>",
-	)
-	.unwrap();
-
-	loop {
-		let token = l.next_token();
-		if token == Token::EOF {
-			html.push_str("</td></tr>");
-			break;
-		}
-
-		match token {
-			Token::INT(value) => {
-				write!(
-					html,
-					"<span class=\"hl-c\">{}</span>",
-					value.iter().collect::<String>()
-				)
-				.unwrap();
-			}
-			Token::IDENT(value) => {
-				html.push_str(&value.iter().collect::<String>());
-			}
-			Token::STRING(value) => {
-				let mut s = String::new();
-				for ch in value {
-					if ch == '<' {
-						s.push_str("&lt;");
-					} else if ch == '>' {
-						s.push_str("&gt;");
-					} else {
-						s.push(ch);
-					}
-				}
-				write!(html, "<span class=\"hl-s\">{s}</span>").unwrap();
-			}
-			Token::ENTITY(value) => {
-				write!(
-					html,
-					"<span class=\"hl-en\">{}</span>",
-					value.iter().collect::<String>()
-				)
-				.unwrap();
-			}
-			Token::CONSTANT(value) => {
-				write!(
-					html,
-					"<span class=\"hl-c\">{}</span>",
-					value.iter().collect::<String>()
-				)
-				.unwrap();
-			}
-			Token::KEYWORD(value) => {
-				write!(
-					html,
-					"<span class=\"hl-k\">{}</span>",
-					value.iter().collect::<String>()
-				)
-				.unwrap();
-			}
-			Token::COMMENT(value) => {
-				let mut lines = String::new();
-				for ch in value {
-					if ch == '<' {
-						lines.push_str("&lt;");
-					} else if ch == '>' {
-						lines.push_str("&gt;");
-					} else {
-						lines.push(ch);
-					}
-				}
-				let split = lines.split('\n');
-				let split_len = split.clone().count();
-				let mut index = 0;
-				for val in split {
-					if val.len() > 1 {
-						write!(html, "<span class=\"hl-cmt\">{val}</span>").unwrap();
-					}
-					index += 1;
-					if index != split_len {
-						line += 1;
-						html.push_str("</td></tr>");
-						write!(
-							html,
-							"<tr><td class=\"hl-line\" data-line=\"{line}\">{line}</td><td>",
-						)
-						.unwrap();
-					}
-				}
-			}
-			Token::ENDL(_) => {
-				line += 1;
-				html.push_str("</td></tr>");
-				write!(
-					html,
-					"<tr><td class=\"hl-line\" data-line=\"{line}\">{line}</td><td>",
-				)
-				.unwrap();
-			}
-			_ => {
-				html.push(l.ch);
-				l.read_char();
-			}
-		}
+pub fn lex(input: &[u8]) -> impl Iterator<Item = Token<'_>> {
+	Lexer {
+		input,
+		cursor: 0,
+		state: State::Normal,
 	}
-
-	html.push_str("</tbody>");
-	html.push_str("</table>");
-	html
 }

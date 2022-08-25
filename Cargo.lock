@@ -451,7 +451,11 @@ dependencies = [
 
 [[package]]
 name = "hl"
-version = "0.1.3"
+version = "0.1.0"
+dependencies = [
+ "askama_escape",
+ "thiserror",
+]
 
 [[package]]
 name = "html5ever"
