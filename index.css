@@ -149,18 +149,18 @@ main {
 	#sidebar-close {
 		display: block;
 	}
+}
 
-	.completed-container > input[type="checkbox"],
-	.close-button {
-		height: 2rem;
-		width: 2rem;
-	}
+.completed-container > input[type="checkbox"],
+.close-button {
+	height: 2rem;
+	width: 2rem;
+}
 
-	.close-button {
-		font-size: 1.5rem;
-	}
+.close-button {
+	font-size: 1.5rem;
+}
 
-	.sidebar-button {
-		font-size: 2rem;
-	}
+.sidebar-button {
+	font-size: 2rem;
 }
