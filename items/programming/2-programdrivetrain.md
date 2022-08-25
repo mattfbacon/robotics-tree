@@ -1,5 +1,5 @@
 ---
-name = "Programming the Drivetrain"
+name = "Coding the Drivetrain"
 description = "In this document, we upload a basic program to a pre-built drivetrain to make the robot move with driver control! If you haven't built the drivetrain already, refer to 'Building a Drivetrain'."
 ---
 
@@ -191,3 +191,93 @@ Now the fun bit -- uploading your code and testing!
 ## Step 7
 
 Run the drivetrain program, and you should be able to control the drivetrain with your joysticks!
+
+If the drivetrain is too fast, you can lower the `drivetrain_multiplier`. Just keep it in the half-open interval (0,1].
+
+# With PROS API
+
+## Step 1
+
+Follow [this PROS documentation page](https://pros.cs.purdue.edu/v5/getting-started/index.html) to install VSCode and the PROS VSCode extension.
+
+Click the PROS extension menu on the sidebar, then click "Create Project". Select "v5" as the target device, and select the latest version. 
+
+
+
+![PROS extension menu in VSCode sidebar](./2-8-1.png)
+
+
+
+![PROS extension menu](./2-8-2.png)
+
+
+
+## Step 2
+
+Find the `main.cpp` file in the `src` directory (`src/main.cpp`); then find the `opcontrol()` function towards the end of the file. 
+
+![src/main.cpp, opcontrol()](./2-9-1.png)
+
+## Step 3
+
+Change the `opcontrol` function to the following (just copy/paste):
+
+```cpp
+void opcontrol() {
+  pros::Motor left_wheels (LEFT_WHEELS_PORT);
+  pros::Motor right_wheels (RIGHT_WHEELS_PORT, true); // This reverses the motor
+  pros::Controller master (CONTROLLER_MASTER);
+
+  while (true) {
+    left_wheels.move(master.get_analog(ANALOG_LEFT_Y));
+    right_wheels.move(master.get_analog(ANALOG_RIGHT_Y));
+
+    pros::delay(2);
+  }
+}
+```
+## Step 4
+
+Define the left and right motor ports just outside the `opcontrol` function. If you have a 4 wheel drive, you need to define 4 ports.
+
+```cpp
+#define LEFT_WHEELS_PORT 1
+#define RIGHT_WHEELS_PORT 10
+
+void opcontrol() {
+  //...the stuff you pasted in before
+}
+```
+
+## Step 5: adding more motors
+
+Just like in the VEXCode Pro approach, we can first add more motor ports for 4 wheel drive. Let's say we also had a `LEFT_BACK_WHEEL_PORT`; then define another port with 
+```cpp
+#define LEFT_BACK_WHEEL_PORT 3
+``` 
+outside of the `opcontrol` function.
+
+
+Now, we have to define the motor object near the start of the `opcontrol` function with 
+```cpp
+pros::Motor left_back_wheels (LEFT_BACK_WHEEL_PORT);
+```
+
+
+ Then, inside the while loop of the `opcontrol` function, write the command to make that motor spin with the corresponding controller axis:
+
+ ```cpp
+left_back_wheel.move(master.get_analog(ANALOG_LEFT_Y));
+ ```
+
+## Step 6
+
+Now the fun bit -- uploading your code and testing!
+
+- **Plug in the motors to the ports you configured them to.** For instance, if you configured the `left_motor` to be on port 3, then connect the left motor to port 3.
+- Turn on your CORTEX and plug in the upload cable to both your computer and the CORTEX.
+- To upload your code, hit the "Build and Upload" quick action on the PROS extension menu (towards the left).
+- After the program is uploaded, it should show up in the list of programs on the CORTEX.
+
+Your drivetrain should hopefully be running with driver control now!
+ 
