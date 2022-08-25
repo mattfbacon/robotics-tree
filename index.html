@@ -22,7 +22,14 @@
 	<img src="img/line-fork.svg" role="presentation" class="line line-fork" />
 	
 	<div class="row">
-		<article class="node fake-node"></article> <article
+		<article
+			class="node"
+			id="node-programming-0"
+			onclick="document.getElementById('dialog-programming-0').showModal();"
+			data-set-completed="programming-0"
+		>
+			<h1>Programming the Drivetrain with VEXCode Pro v5 - Beginner Friendly</h1>
+		</article> <article
 			class="node"
 			id="node-building-0"
 			onclick="document.getElementById('dialog-building-0').showModal();"
@@ -48,7 +55,102 @@
 		</article>
 	</div>
 </main>
-<dialog class="dialog" id="dialog-building-0">
+<dialog class="dialog" id="dialog-programming-0">
+	<form method="dialog">
+		<input class="close-button" type="submit" value="X" label="Close" />
+	</form>
+	<h1>Programming the Drivetrain with VEXCode Pro v5 - Beginner Friendly</h1>
+	<p>In this document, we upload a basic program to a pre-built drivetrain to make the robot move with driver control! If you haven&#x27;t built the drivetrain already, refer to &#x27;Building a Drivetrain&#x27;.</p>
+	<hr />
+	<div class="content"><h2>Step 1</h2>
+<p>Gather materials:</p>
+<ul>
+<li>a computer with <a href="https://www.vexrobotics.com/vexcode/install/v5">VEXCode <strong><em>Pro</em></strong> v5</a> installed</li>
+<li>an upload cable
+<ul>
+<li>not all microUSB cables can work as an upload cable; the cable must be “data carrying”.</li>
+</ul>
+</li>
+<li>a built drivetrain</li>
+</ul>
+<h2>Step 2</h2>
+<p>Click “File” on the top navbar, then hit “New”.</p>
+<p><img src="img/programming/2-2-1.png" alt="VEXCode Pro home screen with “New” highlighted" /></p>
+<h2>Step 3</h2>
+<p>Click the motor icon on the top right; then click “Add a device”.</p>
+<p><img src="img/programming/2-3-1.png" alt="“Add a device” button under “Robot Configuration”" /></p>
+<p><br />
+Add a “Controller”, then click “DONE”.
+<img src="img/programming/2-3-2.png" alt="VEX configuration device list with “Controller” selected" />
+<img src="img/programming/2-3-3.png" alt="“Controller1” configuration panel with “DONE” highlighted" /></p>
+<h2>Step 4</h2>
+<p>Add a motor by clicking “Add a Device” again, then selecting “MOTOR”.
+<img src="img/programming/2-4-1.png" alt="VEX configuration device list with “MOTOR” selected" /></p>
+<p><br />
+Select a port (doesn’t matter for now), then name the motor “left_motor” by clicking the text field near the top. Finally, click “DONE”. You should see the port number of left_motor near its name.<br />
+<img src="img/programming/2-4-2.png" alt="motor configuration screen; renamed to “left_motor”" />
+<img src="img/programming/2-4-3.png" alt="left_motor connected to port 3, indicated with “3” icon" /></p>
+<p><br />
+Add another motor named “right_motor” with the same process outlined above. You should have two motors and a Controller in your “Robot Configuration” list.
+<img src="img/programming/2-4-4.png" alt="Controller1, left_motor, and right_motor listed in “Robot Configuration”" /></p>
+<h2>Step 5</h2>
+<p>Locate the <code>main</code> function in the code. The function starts with <code>int main() {</code> and ends with a <code>}</code> character. Place your cursor inside the <code>main</code> function, after the <code>vexcodeInit();</code> command.
+<img src="img/programming/2-5-1.png" alt="inside main() {, after vexcodeInit()" /></p>
+<p>Paste the following code inside the <code>main</code> function, at your cursor:</p>
+<pre lang="cpp"><code>while (true) {
+    left_motor.spin(forward, Controller1.Axis3.position() * drivetrain_dampening, percent); //spin drivetrain
+    right_motor.spin(forward, Controller1.Axis2.position() * drivetrain_dampening, percent);
+    wait(100, msec);
+  }
+</code></pre>
+<p>You should get a red underline under <code>drivetrain_dampening</code>; when hovering, an error pops up that <code>[clang] Use of undeclared identifier 'drivetrain_dampening'</code>. This error basically says that we haven’t defined the <code>drivetrain_dampening</code> variable yet (if you don’t know what variables are, don’t worry about it for now).</p>
+<p><img src="img/programming/2-5-2.png" alt="drivetrain_dampening isn’t defined" /></p>
+<p>Define the <code>drivetrain_dampening</code> outside of the <code>main</code> function with this code:</p>
+<pre lang="cpp"><code>float drivetrain_dampening = 1;
+</code></pre>
+<p>Your full <code>main.cpp</code> file should now look like this:</p>
+<pre lang="cpp"><code>#include &quot;vex.h&quot;
+
+using namespace vex;
+
+float drivetrain_dampening = 1;
+
+int main() {
+  // Initializing Robot Configuration. DO NOT REMOVE!
+  vexcodeInit();
+  while (true) {
+    left_motor.spin(forward, Controller1.Axis3.position() * drivetrain_dampening, percent); //spin drivetrain
+    right_motor.spin(forward, Controller1.Axis2.position() * drivetrain_dampening, percent);
+    wait(100, msec);
+  }
+}
+</code></pre>
+<p>The bit inside the <code>main</code> function tells the robot motors to spin according to your <code>Controller1</code> axis values; a Controller “axis” is just a way to move the joystick (e.g. up and down on the left joystick, left to right on the right joystick, up and down on the right joystick, etc.)</p>
+<h2>Step 6</h2>
+<p>Now the fun bit – uploading your code and testing!</p>
+<ul>
+<li><strong>Plug in the motors to the ports you configured them to.</strong> For instance, if you configured the <code>left_motor</code> to be on port 3, then connect the left motor to port 3.</li>
+<li>Turn on your CORTEX and plug in the upload cable to both your computer and the CORTEX.</li>
+<li>The buttons on the top right of the screen should change to show that your robot was plugged in. Find the Upload/Download button and click it.</li>
+<li>After the program is uploaded, it should show up in the list of programs on the CORTEX.</li>
+</ul>
+<h2>Step 7</h2>
+<p>Run the drivetrain program, and you should be able to control the drivetrain with your joysticks!</p>
+</div>
+	<hr />
+	<div class="completed-container">
+		<label for="completed-checkbox-programming-0">Completed</label>
+		<input
+			type="checkbox"
+			id="completed-checkbox-programming-0"
+			onchange="set_completed('programming', 0, event.target.checked);"
+			data-set-checked="programming-0"
+		/>
+		<form method="dialog" class="secondary-close">
+			<input class="close-button" type="submit" value="X" label="Close" />
+		</form>
+	</div>
+</dialog><dialog class="dialog" id="dialog-building-0">
 	<form method="dialog">
 		<input class="close-button" type="submit" value="X" label="Close" />
 	</form>
@@ -82,13 +184,13 @@
 <h2>Step 2</h2>
 <p>Place a flat bearing inside the C-channel with 2 screws and an axle. Place a shaft collar on the inside of the C-channel, on the axle. See the note below about choosing screw length for motors.</p>
 <html><div class="row-container">
-  <div><p><img alt="axle with two screws" src="img/building/1-2-1.png"></p></div>
+  <div><p><img src="img/building/1-2-1.png" alt="axle with two screws"></p></div>
   <div><p><img alt="axle with two screws and a collar" src="img/building/1-2-2.png"></p></div>
 </div>
 </html>
 <h3>Note: Choosing screw length for motors</h3>
 <html><div class="row-container">
-  <div><p><img alt="max screw length for motor" src="img/building/1-2-3.png"></p></div>
+  <div><p><img src="img/building/1-2-3.png" alt="max screw length for motor"></p></div>
 </div>
 </html>
 <p>Choose a screw that will have enough room to bury deep in the motor, but not too deep. Try taking a long screw, like the one in the image at right, and spin it into a motor screw slot with your hand only. As a rule of thumb, as soon as you have to use your screwdriver to drive the motor screw, you are probably going too far (or the screw thread is bad). The image at right shows the maximum amount that the screw should go into the motor.</p>
@@ -97,7 +199,7 @@
 <p>While lightly pushing the collar on to the bearing, tighten the shaft collar. The axle should be “frozen” in place by the collar; you shouldn’t be able to pull the axle out. This is the entire purpose of the shaft collar!</p>
 <html><div class="row-container">
   <div><img alt="screws tightened into motor to attach motor" src="img/building/1-3-1.png"></div>
-  <div><img alt="collar tightened to hold axle in motor" src="img/building/1-3-2.png"></div>
+  <div><img src="img/building/1-3-2.png" alt="collar tightened to hold axle in motor"></div>
 </div>
 </html>
 <h2>Step 4</h2>
@@ -110,7 +212,7 @@
 </ol>
 <p>The wheel should be “sandwiched” by collars. This ensures that the wheel can’t move along the axle when the motor spins. One collar should be separated from the C-channel by a washer. This reduces metal-on-metal contact, thereby reducing friction.</p>
 <html><div class="row-container">
-  <div><p><img src="img/building/1-4-1.png" alt="axle with motor and wheel"></p></div>
+  <div><p><img alt="axle with motor and wheel" src="img/building/1-4-1.png"></p></div>
 </div>
 </html>
 <h2>Step 5</h2>
@@ -134,7 +236,7 @@
 <p>Refer to the images below for a quick controller overview. Use the reset button if the controller ever freezes up.</p>
 <html><div class="row-container">
   <div><img src="img/building/1-7-2.png" alt="on the front of the controller: arrow buttons in the bottom left move along menus. the middle power button can be pressed to go back or long pressed to turn off. the A button is used to select and the B button is used to go back."></div>
-  <div><img alt="on the back of the controller: there is a hole that contains a reset button which can be pressed with a screwdriver" src="img/building/1-7-3.png"></div>
+  <div><img src="img/building/1-7-3.png" alt="on the back of the controller: there is a hole that contains a reset button which can be pressed with a screwdriver"></div>
 </div>
 </html>
 </div>
