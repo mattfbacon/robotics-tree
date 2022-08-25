@@ -12,26 +12,26 @@
 }
 
 .hl-constant {
-	color: #5994df;
+	color: #286cc1;
 }
 .hl-method-call {
-	color: #ecdea3;
+	color: #8a720d;
 }
 .hl-field {
-	color: #6bb8e3;
+	color: #116493;
 }
 .hl-keyword {
-	color: #c279c8;
+	color: #a03fa8;
 	font-weight: bold;
 }
 .hl-string-or-char-literal {
-	color: #e68965;
+	color: #a44420;
 }
 .hl-number-literal {
-	color: #afc8a1;
+	color: #508831;
 }
 .hl-comment {
-	color: #548641;
+	color: #336620;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -52,26 +52,26 @@
 	}
 
 	.hl-constant {
-		color: #286cc1;
+		color: #5994df;
 	}
 	.hl-method-call {
-		color: #8a720d;
+		color: #ecdea3;
 	}
 	.hl-field {
-		color: #116493;
+		color: #6bb8e3;
 	}
 	.hl-keyword {
-		color: #a03fa8;
+		color: #c279c8;
 		font-weight: bold;
 	}
 	.hl-string-or-char-literal {
-		color: #a44420;
+		color: #e68965;
 	}
 	.hl-number-literal {
-		color: #508831;
+		color: #afc8a1;
 	}
 	.hl-comment {
-		color: #336620;
+		color: #548641;
 	}
 }
 
@@ -96,13 +96,18 @@ body {
 	position: relative;
 }
 
+.highlight-container {
+	overflow-x: scroll;
+}
+
 .highlight-table {
 	white-space: pre;
 	font-family: monospace;
 }
 
 .hl-line {
-	padding-right: 1rem;
+	opacity: 0.6;
+	padding-right: 0.5rem;
 	text-align: right;
 	user-select: none;
 }
