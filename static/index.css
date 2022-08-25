@@ -94,7 +94,8 @@ main {
 	padding: 0;
 }
 
-#sidebar-open, #sidebar-close {
+#sidebar-open,
+#sidebar-close {
 	display: none; /* overriden in narrow media query */
 	position: absolute;
 	top: 0;
@@ -130,7 +131,8 @@ main {
 		transform: none;
 	}
 
-	#sidebar-open, #sidebar-close {
+	#sidebar-open,
+	#sidebar-close {
 		display: block;
 	}
 
