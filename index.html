@@ -82,8 +82,8 @@
 <h2>Step 2</h2>
 <p>Place a flat bearing inside the C-channel with 2 screws and an axle. Place a shaft collar on the inside of the C-channel, on the axle. See the note below about choosing screw length for motors.</p>
 <html><div class="row-container">
-  <div><p><img alt="axle with two screws" src="img/building/1-2-1.png"></p></div>
-  <div><p><img src="img/building/1-2-2.png" alt="axle with two screws and a collar"></p></div>
+  <div><p><img src="img/building/1-2-1.png" alt="axle with two screws"></p></div>
+  <div><p><img alt="axle with two screws and a collar" src="img/building/1-2-2.png"></p></div>
 </div>
 </html>
 <h3>Note: Choosing screw length for motors</h3>
@@ -96,8 +96,8 @@
 <p>Align the motor so that the screw slots fit with the screws you placed in the previous step. Tighten the screws into the motor. Place the axle inside the motor’s square-shaped hole. It should be difficult to spin the bare axle with your free hand; when you spin the axle, you should hear motor spinning noises.</p>
 <p>While lightly pushing the collar on to the bearing, tighten the shaft collar. The axle should be “frozen” in place by the collar; you shouldn’t be able to pull the axle out. This is the entire purpose of the shaft collar!</p>
 <html><div class="row-container">
-  <div><img alt="screws tightened into motor to attach motor" src="img/building/1-3-1.png"></div>
-  <div><img alt="collar tightened to hold axle in motor" src="img/building/1-3-2.png"></div>
+  <div><img src="img/building/1-3-1.png" alt="screws tightened into motor to attach motor"></div>
+  <div><img src="img/building/1-3-2.png" alt="collar tightened to hold axle in motor"></div>
 </div>
 </html>
 <h2>Step 4</h2>
@@ -110,21 +110,21 @@
 </ol>
 <p>The wheel should be “sandwiched” by collars. This ensures that the wheel can’t move along the axle when the motor spins. One collar should be separated from the C-channel by a washer. This reduces metal-on-metal contact, thereby reducing friction.</p>
 <html><div class="row-container">
-  <div><p><img alt="axle with motor and wheel" src="img/building/1-4-1.png"></p></div>
+  <div><p><img src="img/building/1-4-1.png" alt="axle with motor and wheel"></p></div>
 </div>
 </html>
 <h2>Step 5</h2>
 <p>Wire up your motor to the VEX electronics! Be sure to connect the motor to port 1. It doesn’t matter which ports the controller and radio are connected to. The Radio should have its red lights on.</p>
 <html><div class="row-container">
-  <div><p><img alt="labeled electronics" src="img/building/1-5-1.png"></p></div>
+  <div><p><img src="img/building/1-5-1.png" alt="labeled electronics"></p></div>
 </div>
 </html>
 <h2>Step 6</h2>
 <p>Turn on the CORTEX and controller. After the controller connects to the CORTEX with a wire, disconnect the wire connecting the controller and CORTEX. The controller should automatically switch to a wireless connection with the CORTEX.</p>
 <html><div class="row-container">
   <div><p><img alt="controller screen indicating that the controller is looking for a cortex" src="img/building/1-6-1.png"></p><p>The controller is looking for a CORTEX.</p></div>
-  <div><p><img src="img/building/1-6-2.png" alt="controller screen indicating that the controller is wired to the cortex"></p><p>The controller is wired to the CORTEX.</p></div>
-  <div><p><img alt="controller screen indicating that the controller is wirelessly connected to the cortex" src="img/building/1-6-3.png"></p><p>The controller is wirelessly controlled to the CORTEX, via the radio. This is usually how the controller should be set up.</p></div>
+  <div><p><img alt="controller screen indicating that the controller is wired to the cortex" src="img/building/1-6-2.png"></p><p>The controller is wired to the CORTEX.</p></div>
+  <div><p><img src="img/building/1-6-3.png" alt="controller screen indicating that the controller is wirelessly connected to the cortex"></p><p>The controller is wirelessly controlled to the CORTEX, via the radio. This is usually how the controller should be set up.</p></div>
 </div>
 </html>
 <h2>Step 7</h2>
@@ -134,7 +134,7 @@
 <p>Refer to the images below for a quick controller overview. Use the reset button if the controller ever freezes up.</p>
 <html><div class="row-container">
   <div><img src="img/building/1-7-2.png" alt="on the front of the controller: arrow buttons in the bottom left move along menus. the middle power button can be pressed to go back or long pressed to turn off. the A button is used to select and the B button is used to go back."></div>
-  <div><img alt="on the back of the controller: there is a hole that contains a reset button which can be pressed with a screwdriver" src="img/building/1-7-3.png"></div>
+  <div><img src="img/building/1-7-3.png" alt="on the back of the controller: there is a hole that contains a reset button which can be pressed with a screwdriver"></div>
 </div>
 </html>
 </div>
@@ -147,6 +147,9 @@
 			onchange="set_completed('building', 0, event.target.checked);"
 			data-set-checked="building-0"
 		/>
+		<form method="dialog" class="secondary-close">
+			<input class="close-button" type="submit" value="X" label="Close" />
+		</form>
 	</div>
 </dialog><dialog class="dialog" id="dialog-building-1">
 	<form method="dialog">
@@ -221,6 +224,9 @@ The below picture is taken from the robot’s underside.
 			onchange="set_completed('building', 1, event.target.checked);"
 			data-set-checked="building-1"
 		/>
+		<form method="dialog" class="secondary-close">
+			<input class="close-button" type="submit" value="X" label="Close" />
+		</form>
 	</div>
 </dialog>
 <script>

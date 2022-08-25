@@ -49,22 +49,3 @@ body {
 	flex: 1;
 	position: relative;
 }
-
-.dialog * {
-	max-width: 100%;
-}
-
-.sidebar-button {
-	font-size: 2rem;
-}
-
-.completed-container {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-}
-
-.completed-container > input[type="checkbox"] {
-	width: 2rem;
-	height: 2rem;
-}
