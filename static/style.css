@@ -96,6 +96,10 @@ body {
 	position: relative;
 }
 
+.highlight-container {
+	overflow-x: scroll;
+}
+
 .highlight-table {
 	white-space: pre;
 	font-family: monospace;

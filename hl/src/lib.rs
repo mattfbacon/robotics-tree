@@ -88,7 +88,10 @@ fn render_html_inner<'a>(
 		};
 	}
 
-	write!(buf, "<table class=\"highlight-table\"><tbody>")?;
+	write!(
+		buf,
+		"<div class=\"highlight-container\"><table class=\"highlight-table\"><tbody>"
+	)?;
 	start_line!();
 	for token in tokens {
 		let text = std::str::from_utf8(token.text).unwrap();
@@ -105,7 +108,7 @@ fn render_html_inner<'a>(
 		end_wrap!(token);
 	}
 	end_line!();
-	write!(buf, "</tbody></table>")?;
+	write!(buf, "</tbody></table></div>")?;
 	Ok(())
 }
 
