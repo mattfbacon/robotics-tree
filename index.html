@@ -28,7 +28,7 @@
 			onclick="document.getElementById('dialog-programming-0').showModal();"
 			data-set-completed="programming-0"
 		>
-			<h1>Program­ming the Drivetrain</h1>
+			<h1>Programming the Drivetrain</h1>
 		</article> <article
 			class="node"
 			id="node-building-0"
@@ -59,10 +59,16 @@
 	<form method="dialog">
 		<input class="close-button" type="submit" value="X" label="Close" />
 	</form>
-	<h1>Program­ming the Drivetrain</h1>
-	<p>In this document, we upload a basic program made with VexCode Pro V5 to a pre-built drivetrain to make the robot move with driver control! If you haven&#x27;t built the drivetrain already, refer to &#x27;Building a Drivetrain&#x27;.</p>
+	<h1>Programming the Drivetrain</h1>
+	<p>In this document, we upload a basic program to a pre-built drivetrain to make the robot move with driver control! If you haven&#x27;t built the drivetrain already, refer to &#x27;Building a Drivetrain&#x27;.</p>
 	<hr />
-	<div class="content"><h2>Step 1</h2>
+	<div class="content"><h2>Introduction</h2>
+<p>In this module, we program a drivetrain so that you can control it with the controller. We are going to do this with two different softwares: VEXCode Pro v5 (the official editor) and the VEX PROS API (an open-source, well-documented, highly functional API).</p>
+<p>If you plan on coding for a VEX competition and have some prior coding experience, I’d recommend skipping to the “PROS” section of this module, so that you know how to use that approach. In general, the PROS API definitely has more features and is more advanced than the official API. The documentation is also pretty impressive compared to the official editor.</p>
+<p>However, if you are a beginner to coding in general, I’d stick with the VEXCode Pro v5 approach for now. It’s a little easier to learn, and sets you up to learn the PROS API if you want to. Once you feel you can use the official editor a little bit, you can always come back to this module to learn the PROS approach (it’s really not that different at this level).</p>
+<p>Without further ado, let’s get going!</p>
+<h1>With VEXCode Pro v5</h1>
+<h2>Step 1</h2>
 <p>Gather materials:</p>
 <ul>
 <li>a computer with <a href="https://www.vexrobotics.com/vexcode/install/v5">VEXCode <strong><em>Pro</em></strong> v5</a> installed</li>
@@ -90,8 +96,17 @@ Select a port (doesn’t matter for now), then name the motor “left_motor” b
 <p><img src="img/programming/2-4-2.png" alt="motor configuration screen; renamed to “left_motor”" />
 <img src="img/programming/2-4-3.png" alt="left_motor connected to port 3, indicated with “3” icon" /></p>
 <p><br />
-Add another motor named “right_motor” with the same process outlined above. You should have two motors and a Controller in your “Robot Configuration” list.</p>
-<p><img src="img/programming/2-4-4.png" alt="Controller1, left_motor, and right_motor listed in “Robot Configuration”" /></p>
+Add another motor named “right_motor” with the same process outlined above. <strong>Reverse the direction of the motor</strong> by clicking the toggle switch (see image below). You should have two motors and a Controller in your “Robot Configuration” list.</p>
+<p><strong>If you have a 4 wheel drive, you have to configure two extra motors.</strong> Name them whatever you want; you will have to write code to match these names.</p>
+<p>It’s generally good practice to configure every motor individually rather than configuring a “motor group”; you can get more functionality.</p>
+<p><img src="img/programming/2-4-4.png" alt="motor reversed" />
+<img src="img/programming/2-4-5.png" alt="Controller1, left_motor, and right_motor listed in “Robot Configuration”" /></p>
+<h3>Coding Note: Why reverse motors?</h3>
+<p>On every v5 motor, you will see a plus icon with a circular direction indicated. This is the default positive orientation of the motor. When a positive percent value is passed to the motor, the motor will spin in the indicated direction by default.
+<img src="img/programming/2-4-6.png" alt="vex v5 motor with positive orientation indicator circled" /></p>
+<p>When you move a joystick forward, all wheels should spin in the same direction (forward). However, the positive orientations of the left wheels are actually in the <em>opposite direction</em> to the right wheels! This means that passing a positive percentage value to both sides will result in both sides spinning in opposite directions.</p>
+<p>We could just invert the percent value of the joystick (multiply by -1) and pass this inverted value to one side. However, a more elegant solution is to just “reverse” one side of the motors, thus reversing the positive orientation of one side. Now, a positive percentage value will spin both sides of the motor in the same direction (yay!).</p>
+<p>(exactly the same logic applies for negative percentage values as well)</p>
 <h2>Step 5</h2>
 <p>Locate the <code>main</code> function in the code. The function starts with <code>int main() {</code> and ends with a <code>}</code> character. Place your cursor inside the <code>main</code> function, after the <code>vexcodeInit();</code> command.</p>
 <p><img src="img/programming/2-5-1.png" alt="inside main() {, after vexcodeInit()" /></p>
@@ -104,6 +119,21 @@ Add another motor named “right_motor” with the same process outlined above. 
 <p>Your full <code>main.cpp</code> file should now look like this:</p>
 <table class="highlight-table"><tbody><tr><td class="hl-line" data-line="1">1</td><td>#<span class="hl-k">include</span> <span class="hl-s">"vex.h"</span></td></tr><tr><td class="hl-line" data-line="2">2</td><td></td></tr><tr><td class="hl-line" data-line="3">3</td><td><span class="hl-k">using</span> <span class="hl-k">namespace</span> vex;</td></tr><tr><td class="hl-line" data-line="4">4</td><td></td></tr><tr><td class="hl-line" data-line="5">5</td><td><span class="hl-k">float</span> drivetrain_dampening = <span class="hl-c">1</span>;</td></tr><tr><td class="hl-line" data-line="6">6</td><td></td></tr><tr><td class="hl-line" data-line="7">7</td><td><span class="hl-k">int</span> <span class="hl-en">main</span>() {</td></tr><tr><td class="hl-line" data-line="8">8</td><td>  <span class="hl-cmt">// Initializing Robot Configuration. DO NOT REMOVE!</span></td></tr><tr><td class="hl-line" data-line="9">9</td><td>  <span class="hl-en">vexcodeInit</span>();</td></tr><tr><td class="hl-line" data-line="10">10</td><td>  <span class="hl-k">while</span> (<span class="hl-c">true</span>) {</td></tr><tr><td class="hl-line" data-line="11">11</td><td>    left_motor.<span class="hl-en">spin</span>(forward, Controller1.Axis3.<span class="hl-en">position</span>() * drivetrain_dampening, percent); <span class="hl-cmt">//spin drivetrain</span></td></tr><tr><td class="hl-line" data-line="12">12</td><td>    right_motor.<span class="hl-en">spin</span>(forward, Controller1.Axis2.<span class="hl-en">position</span>() * drivetrain_dampening, percent);</td></tr><tr><td class="hl-line" data-line="13">13</td><td>    <span class="hl-en">wait</span>(<span class="hl-c">100</span>, msec);</td></tr><tr><td class="hl-line" data-line="14">14</td><td>  }</td></tr><tr><td class="hl-line" data-line="15">15</td><td>}</td></tr></tbody></table>
 <p>The bit inside the <code>main</code> function tells the robot motors to spin according to your <code>Controller1</code> axis values; a Controller “axis” is just a way to move the joystick (e.g. up and down on the left joystick, left to right on the right joystick, up and down on the right joystick, etc.)</p>
+<h3>Note: 4 wheel drive</h3>
+<p>If you have a 4 wheel drive, you just have to add a few more function calls to spin the other two motors.</p>
+<p>Suppose you have two other motors, in addition to the <code>left_motor</code> and <code>right_motor</code> configured above; let’s call them <code>left_back_motor</code> and <code>right_back_motor</code>.</p>
+<p>Inside the while loop, we have to tell the <code>left_back_motor</code> to spin:</p>
+<table class="highlight-table"><tbody><tr><td class="hl-line" data-line="1">1</td><td>left_back_motor.<span class="hl-en">spin</span>(forward, )</td></tr></tbody></table>
+<p>Since this a motor on the <em>left</em> side of the bot, we want to use the axis 3 value to control that motor; axis 3 is on the <em>left</em> side of the controller.</p>
+<p>The axis numbers are indicated in the Controller configuration:</p>
+<p><img src="img/programming/2-5-3.png" alt="axis numbers on controller configuration screen" /></p>
+<p>We add to our code:</p>
+<table class="highlight-table"><tbody><tr><td class="hl-line" data-line="1">1</td><td>left_back_motor.<span class="hl-en">spin</span>(forward, Controller1.Axis3.<span class="hl-en">position</span>() * drivetrain_dampening, percent);</td></tr></tbody></table>
+<p>A similar command for the right motor might look like:</p>
+<table class="highlight-table"><tbody><tr><td class="hl-line" data-line="1">1</td><td>right_back_motor.<span class="hl-en">spin</span>(forward, Controller1.Axis2.<span class="hl-en">position</span>() * drivetrain_dampening, percent);</td></tr></tbody></table>
+<p>Notice how we used axis 2 instead, since that axis is on the right side of the controller.</p>
+<p>For a 4 wheel drive, your full <code>main.cpp</code> file should look something like this:</p>
+<table class="highlight-table"><tbody><tr><td class="hl-line" data-line="1">1</td><td>#<span class="hl-k">include</span> <span class="hl-s">"vex.h"</span></td></tr><tr><td class="hl-line" data-line="2">2</td><td></td></tr><tr><td class="hl-line" data-line="3">3</td><td><span class="hl-k">using</span> <span class="hl-k">namespace</span> vex;</td></tr><tr><td class="hl-line" data-line="4">4</td><td></td></tr><tr><td class="hl-line" data-line="5">5</td><td><span class="hl-k">float</span> drivetrain_dampening = <span class="hl-c">1</span>;</td></tr><tr><td class="hl-line" data-line="6">6</td><td></td></tr><tr><td class="hl-line" data-line="7">7</td><td><span class="hl-k">int</span> <span class="hl-en">main</span>() {</td></tr><tr><td class="hl-line" data-line="8">8</td><td>  <span class="hl-cmt">// Initializing Robot Configuration. DO NOT REMOVE!</span></td></tr><tr><td class="hl-line" data-line="9">9</td><td>  <span class="hl-en">vexcodeInit</span>();</td></tr><tr><td class="hl-line" data-line="10">10</td><td>  <span class="hl-k">while</span> (<span class="hl-c">true</span>) {</td></tr><tr><td class="hl-line" data-line="11">11</td><td>    <span class="hl-cmt">//spin front motors</span></td></tr><tr><td class="hl-line" data-line="12">12</td><td>    left_motor.<span class="hl-en">spin</span>(forward, Controller1.Axis3.<span class="hl-en">position</span>() * drivetrain_dampening, percent); </td></tr><tr><td class="hl-line" data-line="13">13</td><td>    right_motor.<span class="hl-en">spin</span>(forward, Controller1.Axis2.<span class="hl-en">position</span>() * drivetrain_dampening, percent);</td></tr><tr><td class="hl-line" data-line="14">14</td><td></td></tr><tr><td class="hl-line" data-line="15">15</td><td>    <span class="hl-cmt">//spin back motors</span></td></tr><tr><td class="hl-line" data-line="16">16</td><td>    left_back_motor.<span class="hl-en">spin</span>(forward, Controller1.Axis3.<span class="hl-en">position</span>() * drivetrain_dampening, percent);</td></tr><tr><td class="hl-line" data-line="17">17</td><td>    right_back_motor.<span class="hl-en">spin</span>(forward, Controller1.Axis2.<span class="hl-en">position</span>() * drivetrain_dampening, percent);</td></tr><tr><td class="hl-line" data-line="18">18</td><td>    <span class="hl-en">wait</span>(<span class="hl-c">100</span>, msec);</td></tr><tr><td class="hl-line" data-line="19">19</td><td>  }</td></tr><tr><td class="hl-line" data-line="20">20</td><td>}</td></tr></tbody></table>
 <h2>Step 6</h2>
 <p>Now the fun bit – uploading your code and testing!</p>
 <ul>
@@ -168,7 +198,7 @@ Add another motor named “right_motor” with the same process outlined above. 
 </html>
 <h3>Note: Choosing screw length for motors</h3>
 <html><div class="row-container">
-  <div><p><img alt="max screw length for motor" src="img/building/1-2-3.png"></p></div>
+  <div><p><img src="img/building/1-2-3.png" alt="max screw length for motor"></p></div>
 </div>
 </html>
 <p>Choose a screw that will have enough room to bury deep in the motor, but not too deep. Try taking a long screw, like the one in the image at right, and spin it into a motor screw slot with your hand only. As a rule of thumb, as soon as you have to use your screwdriver to drive the motor screw, you are probably going too far (or the screw thread is bad). The image at right shows the maximum amount that the screw should go into the motor.</p>
@@ -190,7 +220,7 @@ Add another motor named “right_motor” with the same process outlined above. 
 </ol>
 <p>The wheel should be “sandwiched” by collars. This ensures that the wheel can’t move along the axle when the motor spins. One collar should be separated from the C-channel by a washer. This reduces metal-on-metal contact, thereby reducing friction.</p>
 <html><div class="row-container">
-  <div><p><img alt="axle with motor and wheel" src="img/building/1-4-1.png"></p></div>
+  <div><p><img src="img/building/1-4-1.png" alt="axle with motor and wheel"></p></div>
 </div>
 </html>
 <h2>Step 5</h2>
@@ -203,7 +233,7 @@ Add another motor named “right_motor” with the same process outlined above. 
 <p>Turn on the CORTEX and controller. After the controller connects to the CORTEX with a wire, disconnect the wire connecting the controller and CORTEX. The controller should automatically switch to a wireless connection with the CORTEX.</p>
 <html><div class="row-container">
   <div><p><img src="img/building/1-6-1.png" alt="controller screen indicating that the controller is looking for a cortex"></p><p>The controller is looking for a CORTEX.</p></div>
-  <div><p><img src="img/building/1-6-2.png" alt="controller screen indicating that the controller is wired to the cortex"></p><p>The controller is wired to the CORTEX.</p></div>
+  <div><p><img alt="controller screen indicating that the controller is wired to the cortex" src="img/building/1-6-2.png"></p><p>The controller is wired to the CORTEX.</p></div>
   <div><p><img src="img/building/1-6-3.png" alt="controller screen indicating that the controller is wirelessly connected to the cortex"></p><p>The controller is wirelessly controlled to the CORTEX, via the radio. This is usually how the controller should be set up.</p></div>
 </div>
 </html>
@@ -214,7 +244,7 @@ Add another motor named “right_motor” with the same process outlined above. 
 <p>Refer to the images below for a quick controller overview. Use the reset button if the controller ever freezes up.</p>
 <html><div class="row-container">
   <div><img src="img/building/1-7-2.png" alt="on the front of the controller: arrow buttons in the bottom left move along menus. the middle power button can be pressed to go back or long pressed to turn off. the A button is used to select and the B button is used to go back."></div>
-  <div><img alt="on the back of the controller: there is a hole that contains a reset button which can be pressed with a screwdriver" src="img/building/1-7-3.png"></div>
+  <div><img src="img/building/1-7-3.png" alt="on the back of the controller: there is a hole that contains a reset button which can be pressed with a screwdriver"></div>
 </div>
 </html>
 </div>
@@ -236,11 +266,11 @@ Add another motor named “right_motor” with the same process outlined above. 
 		<input class="close-button" type="submit" value="X" label="Close" />
 	</form>
 	<h1>Building a Drivetrain</h1>
-	<p>In this module, we build a 2 wheel drive, tank-style drivetrain. This is the standard way to build a drivetrain that you will probably use in competition.</p>
+	<p>In this module, we build a 4 wheel drive, tank-style drivetrain. This is the standard way to build a drivetrain that you will probably use in competition.</p>
 	<hr />
 	<div class="content"><h2>What you will build</h2>
-<p>The final product will look something like this:
-<img src="img/building/2-0-1.png" alt="final drivetrain" /></p>
+<p>The final product will look something like this:</p>
+<p><img src="img/building/2-8-1.png" alt="final drivetrain, top view" /></p>
 <h2>Step 1</h2>
 <p>Gather the necessary parts:</p>
 <ul>
@@ -249,15 +279,20 @@ Add another motor named “right_motor” with the same process outlined above. 
 <li>VEX Controller</li>
 <li>VEX Radio</li>
 <li>VEX Wires (x4)</li>
-<li>decently long C-channels (at least 25 holes long) (x2)</li>
-<li>other C-channels (at least 15 holes long) (x2)</li>
-<li>a 5-wide (at least 15 holes long, same length as the “other C-channels” above)</li>
+<li>decently long C-channels (at least 25 holes long) (x6)
+<ul>
+<li>at least 4 of these should be of exactly the same length</li>
+</ul>
+</li>
+<li>a 5-wide (at least 15 holes long, same length as the C-channels above)</li>
+<li>shorter C channels (5 holes long) (x4)</li>
 <li>battery and battery cable</li>
 <li>toolbox
 <ul>
 <li>flat bearing</li>
 <li>shaft collars</li>
 <li>screws</li>
+<li>standoffs (3/4 in) (x4)</li>
 </ul>
 </li>
 </ul>
@@ -266,34 +301,41 @@ Add another motor named “right_motor” with the same process outlined above. 
 <p><img src="img/building/2-1-1.png" alt="15 hole C channel with every 5 holes marked" /></p>
 <p>For this activity, make sure you have two pairs of C-channels with the same length. (You will eventually make a rectangular structure for the drivetrain)</p>
 <h2>Step 2</h2>
-<p>Attach a motor to one of the longer C channels. Place an omniwheel on this motor. You can follow the instructions in the previous module titled “Putting on a Motor”. Be sure to leave enough space for a future structural element.</p>
-<p><img src="img/building/2-2-1.png" alt="motor with axle on C channel" />
-As in the picture above, your motor axle should be at least the 4th hole from the last center hole. You will eventually place a perpendicular C-channel with the extra space you leave (see image below).</p>
-<p><img src="img/building/2-2-2.png" alt="motor with axle on C channel connected to another C channel" /></p>
-<p>Remember to place an omniwheel on the axle (not a small traction wheel).</p>
-<p><img src="img/building/2-2-3.png" alt="motor on C channle with omniwheel" /></p>
+<p>Attach a motor to one of the longer C channels. Place an omniwheel on this motor. You can follow the instructions in the previous module titled “Putting on a Motor”. Be sure to leave enough space for a future structural element. Also be sure to screw in the motor before putting anything else in. As in the picture below, your motor axle should be at least the 7th hole from the last center hole. Place the bearing flat so that the most of the motor faces inside the robot, rather than outside.</p>
+<p><img src="img/building/2-2-1.png" alt="axles on C channel; 7 holes from end" /></p>
+<p><img src="img/building/2-2-2.png" alt="axles with bearings on other side of C channel" /></p>
+<p>Remember to place omniwheels on the axles (not small traction wheels).</p>
+<p><img src="img/building/2-2-3.png" alt="motors on C channle with omniwheels" /></p>
 <h2>Step 3</h2>
-<p>Place another wheel on the same C channel. Remember that the motor axle should be at least the 4th hole from the last center hole on the C channel.</p>
-<p><img src="img/building/2-3-1.png" alt="two axles on the 4th hole away from both edges" />
-<img src="img/building/2-3-2.png" alt="two wheels on the same C channel - front view" />
-<img src="img/building/2-3-3.png" alt="two wheels on the same C channel - 3D view" /></p>
+<p>When we installed a motor in the last module (‘Installing a Motor’), the axle had one point of support. That was okay, since the wheel didn’t have to support any load.</p>
+<p>Now, since your wheels are supporting the weight of your robot, you need <em><strong>two</strong></em> points of support for your axles. This is a general rule in VEX: always support your axles in two places (at least). Only one point of support causes undue friction and stress on the axle.</p>
+<p>Add these parts to the axle in the following order:</p>
+<ol>
+<li>large spacer (3/8 in)</li>
+<li>washer</li>
+<li>C channel (same length as the other one, 25 holes)</li>
+</ol>
+<p>Then, add the short C channel (5 holes long) to both sides of the assembly. It should look like this from the top:</p>
+<p><img src="img/building/2-3-1.png" alt="top view, almost finished wheel set" /></p>
+<p><img src="img/building/2-3-2.png" alt="side view" /></p>
+<p>Finish the assembly off with a washer and collar at the end of both axles. As in the previous module, make sure the washer is between the collar and the C channel (to reduce friction).</p>
 <h2>Step 4</h2>
-<p>Make another set of wheels. You will connect these two sets in the next step.</p>
-<p><img src="img/building/2-4-1.png" alt="two C channels; each C channel with 2 motor-powered wheels" /></p>
+<p>Make another set of wheels (repeat Step 3). You will connect these two sets in the next step. Just make sure to put the short C channels on the opposite side as before, since this assembly will be rotated upside down to match with the other one.</p>
+<p><img src="img/building/2-4-1.png" alt="two sets of wheels" /></p>
 <h2>Step 5</h2>
-<p>Connect the two sets of wheels with C channels. The connecting C channels should be at least 15 holes wide.</p>
-<p><img src="img/building/2-5-1.png" alt="4 motors connected with 2 C channels" /></p>
+<p>Connect the two sets of wheels with C channels. The connecting C channels should be at least 25 holes wide. <strong>Make sure exactly two holes sticks out of the bot</strong> (for alignment reasons).</p>
+<p><img src="img/building/2-5-1.png" alt="4 motors connected with C channels, top view" /></p>
+<p><img src="img/building/2-5-2.png" alt="4 motors connected with C channels, 3D view" /></p>
 <h2>Step 6</h2>
-<p>Now, we can place the CORTEX on the robot. Find a 5-wide C-channel at least as long as the connecting pieces you attached in the last step. Connect the CORTEX to the 5-wide with 4 screws.</p>
+<p>Now, we can place the CORTEX on the robot. Get the 5-wide C channel exactly 15 holes wide. Connect the CORTEX to the 5-wide with 4 screws.</p>
 <p><img src="img/building/2-6-1.png" alt="robot brain screwed to 5 wide C channel" /></p>
 <h2>Step 7</h2>
-<p>Screw 4 standoffs to the bottom of the 5-wide. The standoffs enable the CORTEX to face upward instead of downward when the CORTEX is connected to the robot.</p>
+<p>Screw 4 standoffs to the bottom of the 5-wide. The standoffs enable the CORTEX to face upward instead of downward when the CORTEX is connected to the robot. Also make sure the standoffs are at least 3/4 in long; this assembly needs to “rise” above the motors.</p>
 <p><img src="img/building/2-7-1.png" alt="robot brain screwed to 5 wide C channel with 4 standoffs on each corner" /></p>
 <h2>Step 8</h2>
 <p>Screw this 5 channel to the robot.</p>
 <p><img src="img/building/2-8-1.png" alt="final drivetrain, top view" /></p>
-<p>The below picture is taken from the robot’s underside.</p>
-<p><img src="img/building/2-8-2.png" alt="final drivetrain, bottom view" /></p>
+<p>Congrats, you have built a (hopefully) functional drivetrain! Move on to “Coding your Drivetrain” to enable it to move with your controller!</p>
 </div>
 	<hr />
 	<div class="completed-container">
