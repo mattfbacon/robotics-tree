@@ -50,7 +50,7 @@ body {
 	position: relative;
 }
 
-.row-container > div * {
+.dialog * {
 	max-width: 100%;
 }
 
