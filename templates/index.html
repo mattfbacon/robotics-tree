@@ -88,6 +88,9 @@
 			onchange="set_completed('{{category_name}}', {{index}}, event.target.checked);"
 			data-set-checked="{{category_name}}-{{index}}"
 		/>
+		<form method="dialog" class="secondary-close">
+			<input class="close-button" type="submit" value="X" label="Close" />
+		</form>
 	</div>
 </dialog>
 {%- endfor %}

@@ -23,6 +23,10 @@ main {
 	color: var(--foreground);
 }
 
+.secondary-close {
+	margin-left: auto;
+}
+
 .dialog {
 	background: var(--background);
 	border-radius: calc(2 * var(--border-width));
