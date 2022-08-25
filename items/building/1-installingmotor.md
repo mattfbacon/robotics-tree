@@ -90,7 +90,7 @@ Turn on the CORTEX and controller. After the controller connects to the CORTEX w
 
 Select the “Drive” program on your controller (see the note below). Then hit Run, and you are done! You should be able to control the motor with the left joystick.
 
-<div style="display: flex;">
+<div style="row-container">
   <div><p><img src="./1-7-1.png" alt="about to run the 'drive' program"></p></div>
 </div>
 
