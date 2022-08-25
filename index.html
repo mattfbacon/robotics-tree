@@ -28,7 +28,7 @@
 			onclick="document.getElementById('dialog-programming-0').showModal();"
 			data-set-completed="programming-0"
 		>
-			<h1>Programming the Drivetrain</h1>
+			<h1>Coding the Drivetrain</h1>
 		</article> <article
 			class="node"
 			id="node-building-0"
@@ -59,7 +59,7 @@
 	<form method="dialog">
 		<input class="close-button" type="submit" value="X" label="Close" />
 	</form>
-	<h1>Programming the Drivetrain</h1>
+	<h1>Coding the Drivetrain</h1>
 	<p>In this document, we upload a basic program to a pre-built drivetrain to make the robot move with driver control! If you haven&#x27;t built the drivetrain already, refer to &#x27;Building a Drivetrain&#x27;.</p>
 	<hr />
 	<div class="content"><h2>Introduction</h2>
@@ -144,6 +144,39 @@ Add another motor named “right_motor” with the same process outlined above. 
 </ul>
 <h2>Step 7</h2>
 <p>Run the drivetrain program, and you should be able to control the drivetrain with your joysticks!</p>
+<p>If the drivetrain is too fast, you can lower the <code>drivetrain_multiplier</code>. Just keep it in the half-open interval (0,1].</p>
+<h1>With PROS API</h1>
+<h2>Step 1</h2>
+<p>Follow <a href="https://pros.cs.purdue.edu/v5/getting-started/index.html">this PROS documentation page</a> to install VSCode and the PROS VSCode extension.</p>
+<p>Click the PROS extension menu on the sidebar, then click “Create Project”. Select “v5” as the target device, and select the latest version.</p>
+<p><img src="img/programming/2-8-1.png" alt="PROS extension menu in VSCode sidebar" /></p>
+<p><img src="img/programming/2-8-2.png" alt="PROS extension menu" /></p>
+<h2>Step 2</h2>
+<p>Find the <code>main.cpp</code> file in the <code>src</code> directory (<code>src/main.cpp</code>); then find the <code>opcontrol()</code> function towards the end of the file.</p>
+<p><img src="img/programming/2-9-1.png" alt="src/main.cpp, opcontrol()" /></p>
+<h2>Step 3</h2>
+<p>Change the <code>opcontrol</code> function to the following (just copy/paste):</p>
+<table class="highlight-table"><tbody><tr><td class="hl-line" data-line="1">1</td><td><span class="hl-k">void</span> <span class="hl-en">opcontrol</span>() {</td></tr><tr><td class="hl-line" data-line="2">2</td><td>  pros::Motor <span class="hl-en">left_wheels</span> (LEFT_WHEELS_PORT);</td></tr><tr><td class="hl-line" data-line="3">3</td><td>  pros::Motor <span class="hl-en">right_wheels</span> (RIGHT_WHEELS_PORT, <span class="hl-c">true</span>); <span class="hl-cmt">// This reverses the motor</span></td></tr><tr><td class="hl-line" data-line="4">4</td><td>  pros::Controller <span class="hl-en">master</span> (CONTROLLER_MASTER);</td></tr><tr><td class="hl-line" data-line="5">5</td><td></td></tr><tr><td class="hl-line" data-line="6">6</td><td>  <span class="hl-k">while</span> (<span class="hl-c">true</span>) {</td></tr><tr><td class="hl-line" data-line="7">7</td><td>    left_wheels.<span class="hl-en">move</span>(master.<span class="hl-en">get_analog</span>(ANALOG_LEFT_Y));</td></tr><tr><td class="hl-line" data-line="8">8</td><td>    right_wheels.<span class="hl-en">move</span>(master.<span class="hl-en">get_analog</span>(ANALOG_RIGHT_Y));</td></tr><tr><td class="hl-line" data-line="9">9</td><td></td></tr><tr><td class="hl-line" data-line="10">10</td><td>    pros::<span class="hl-en">delay</span>(<span class="hl-c">2</span>);</td></tr><tr><td class="hl-line" data-line="11">11</td><td>  }</td></tr><tr><td class="hl-line" data-line="12">12</td><td>}</td></tr></tbody></table>
+<h2>Step 4</h2>
+<p>Define the left and right motor ports just outside the <code>opcontrol</code> function. If you have a 4 wheel drive, you need to define 4 ports.</p>
+<table class="highlight-table"><tbody><tr><td class="hl-line" data-line="1">1</td><td>#<span class="hl-k">define</span> LEFT_WHEELS_PORT <span class="hl-c">1</span></td></tr><tr><td class="hl-line" data-line="2">2</td><td>#<span class="hl-k">define</span> RIGHT_WHEELS_PORT <span class="hl-c">10</span></td></tr><tr><td class="hl-line" data-line="3">3</td><td></td></tr><tr><td class="hl-line" data-line="4">4</td><td><span class="hl-k">void</span> <span class="hl-en">opcontrol</span>() {</td></tr><tr><td class="hl-line" data-line="5">5</td><td>  <span class="hl-cmt">//...the stuff you pasted in before</span></td></tr><tr><td class="hl-line" data-line="6">6</td><td>}</td></tr></tbody></table>
+<h2>Step 5: adding more motors</h2>
+<p>Just like in the VEXCode Pro approach, we can first add more motor ports for 4 wheel drive. Let’s say we also had a <code>LEFT_BACK_WHEEL_PORT</code>; then define another port with</p>
+<table class="highlight-table"><tbody><tr><td class="hl-line" data-line="1">1</td><td>#<span class="hl-k">define</span> LEFT_BACK_WHEEL_PORT <span class="hl-c">3</span></td></tr></tbody></table>
+<p>outside of the <code>opcontrol</code> function.</p>
+<p>Now, we have to define the motor object near the start of the <code>opcontrol</code> function with</p>
+<table class="highlight-table"><tbody><tr><td class="hl-line" data-line="1">1</td><td>pros::Motor <span class="hl-en">left_back_wheels</span> (LEFT_BACK_WHEEL_PORT);</td></tr></tbody></table>
+<p>Then, inside the while loop of the <code>opcontrol</code> function, write the command to make that motor spin with the corresponding controller axis:</p>
+<table class="highlight-table"><tbody><tr><td class="hl-line" data-line="1">1</td><td>left_back_wheel.<span class="hl-en">move</span>(master.<span class="hl-en">get_analog</span>(ANALOG_LEFT_Y));</td></tr></tbody></table>
+<h2>Step 6</h2>
+<p>Now the fun bit – uploading your code and testing!</p>
+<ul>
+<li><strong>Plug in the motors to the ports you configured them to.</strong> For instance, if you configured the <code>left_motor</code> to be on port 3, then connect the left motor to port 3.</li>
+<li>Turn on your CORTEX and plug in the upload cable to both your computer and the CORTEX.</li>
+<li>To upload your code, hit the “Build and Upload” quick action on the PROS extension menu (towards the left).</li>
+<li>After the program is uploaded, it should show up in the list of programs on the CORTEX.</li>
+</ul>
+<p>Your drivetrain should hopefully be running with driver control now!</p>
 </div>
 	<hr />
 	<div class="completed-container">
@@ -198,7 +231,7 @@ Add another motor named “right_motor” with the same process outlined above. 
 </html>
 <h3>Note: Choosing screw length for motors</h3>
 <html><div class="row-container">
-  <div><p><img src="img/building/1-2-3.png" alt="max screw length for motor"></p></div>
+  <div><p><img alt="max screw length for motor" src="img/building/1-2-3.png"></p></div>
 </div>
 </html>
 <p>Choose a screw that will have enough room to bury deep in the motor, but not too deep. Try taking a long screw, like the one in the image at right, and spin it into a motor screw slot with your hand only. As a rule of thumb, as soon as you have to use your screwdriver to drive the motor screw, you are probably going too far (or the screw thread is bad). The image at right shows the maximum amount that the screw should go into the motor.</p>
@@ -207,7 +240,7 @@ Add another motor named “right_motor” with the same process outlined above. 
 <p>While lightly pushing the collar on to the bearing, tighten the shaft collar. The axle should be “frozen” in place by the collar; you shouldn’t be able to pull the axle out. This is the entire purpose of the shaft collar!</p>
 <html><div class="row-container">
   <div><img src="img/building/1-3-1.png" alt="screws tightened into motor to attach motor"></div>
-  <div><img src="img/building/1-3-2.png" alt="collar tightened to hold axle in motor"></div>
+  <div><img alt="collar tightened to hold axle in motor" src="img/building/1-3-2.png"></div>
 </div>
 </html>
 <h2>Step 4</h2>
@@ -220,21 +253,21 @@ Add another motor named “right_motor” with the same process outlined above. 
 </ol>
 <p>The wheel should be “sandwiched” by collars. This ensures that the wheel can’t move along the axle when the motor spins. One collar should be separated from the C-channel by a washer. This reduces metal-on-metal contact, thereby reducing friction.</p>
 <html><div class="row-container">
-  <div><p><img src="img/building/1-4-1.png" alt="axle with motor and wheel"></p></div>
+  <div><p><img alt="axle with motor and wheel" src="img/building/1-4-1.png"></p></div>
 </div>
 </html>
 <h2>Step 5</h2>
 <p>Wire up your motor to the VEX electronics! Be sure to connect the motor to port 1. It doesn’t matter which ports the controller and radio are connected to. The Radio should have its red lights on.</p>
 <html><div class="row-container">
-  <div><p><img src="img/building/1-5-1.png" alt="labeled electronics"></p></div>
+  <div><p><img alt="labeled electronics" src="img/building/1-5-1.png"></p></div>
 </div>
 </html>
 <h2>Step 6</h2>
 <p>Turn on the CORTEX and controller. After the controller connects to the CORTEX with a wire, disconnect the wire connecting the controller and CORTEX. The controller should automatically switch to a wireless connection with the CORTEX.</p>
 <html><div class="row-container">
-  <div><p><img src="img/building/1-6-1.png" alt="controller screen indicating that the controller is looking for a cortex"></p><p>The controller is looking for a CORTEX.</p></div>
+  <div><p><img alt="controller screen indicating that the controller is looking for a cortex" src="img/building/1-6-1.png"></p><p>The controller is looking for a CORTEX.</p></div>
   <div><p><img alt="controller screen indicating that the controller is wired to the cortex" src="img/building/1-6-2.png"></p><p>The controller is wired to the CORTEX.</p></div>
-  <div><p><img src="img/building/1-6-3.png" alt="controller screen indicating that the controller is wirelessly connected to the cortex"></p><p>The controller is wirelessly controlled to the CORTEX, via the radio. This is usually how the controller should be set up.</p></div>
+  <div><p><img alt="controller screen indicating that the controller is wirelessly connected to the cortex" src="img/building/1-6-3.png"></p><p>The controller is wirelessly controlled to the CORTEX, via the radio. This is usually how the controller should be set up.</p></div>
 </div>
 </html>
 <h2>Step 7</h2>
@@ -243,7 +276,7 @@ Add another motor named “right_motor” with the same process outlined above. 
 <h3>Note: Controlling the Controller</h3>
 <p>Refer to the images below for a quick controller overview. Use the reset button if the controller ever freezes up.</p>
 <html><div class="row-container">
-  <div><img src="img/building/1-7-2.png" alt="on the front of the controller: arrow buttons in the bottom left move along menus. the middle power button can be pressed to go back or long pressed to turn off. the A button is used to select and the B button is used to go back."></div>
+  <div><img alt="on the front of the controller: arrow buttons in the bottom left move along menus. the middle power button can be pressed to go back or long pressed to turn off. the A button is used to select and the B button is used to go back." src="img/building/1-7-2.png"></div>
   <div><img src="img/building/1-7-3.png" alt="on the back of the controller: there is a hole that contains a reset button which can be pressed with a screwdriver"></div>
 </div>
 </html>
