@@ -116,6 +116,16 @@ main {
 	right: 0;
 }
 
+.dialog * {
+	max-width: 100%;
+}
+
+.completed-container {
+	align-items: center;
+	display: flex;
+	flex-direction: row;
+}
+
 @media (max-width: 35rem) {
 	body {
 		display: inline-block;
@@ -138,16 +148,6 @@ main {
 	#sidebar-open,
 	#sidebar-close {
 		display: block;
-	}
-
-	.dialog * {
-		max-width: 100%;
-	}
-
-	.completed-container {
-		align-items: center;
-		display: flex;
-		flex-direction: row;
 	}
 
 	.completed-container > input[type="checkbox"],
