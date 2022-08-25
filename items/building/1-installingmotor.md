@@ -37,7 +37,7 @@ Place a flat bearing inside the C-channel with 2 screws and an axle. Place a sha
 ### Note: Choosing screw length for motors
 
 <div class="row-container">
-  <p><img src="./1-2-3.png" alt="max screw length for motor"></p>
+  <div><p><img src="./1-2-3.png" alt="max screw length for motor"></p></div>
 </div>
 
 Choose a screw that will have enough room to bury deep in the motor, but not too deep. Try taking a long screw, like the one in the image at right, and spin it into a motor screw slot with your hand only. As a rule of thumb, as soon as you have to use your screwdriver to drive the motor screw, you are probably going too far (or the screw thread is bad). The image at right shows the maximum amount that the screw should go into the motor.
@@ -65,7 +65,7 @@ Place the parts in the given order along the axle:
 The wheel should be “sandwiched” by collars. This ensures that the wheel can’t move along the axle when the motor spins. One collar should be separated from the C-channel by a washer. This reduces metal-on-metal contact, thereby reducing friction.
 
 <div class="row-container">
-  <p><img src="./1-4-1.png" alt="axle with motor and wheel"></p>
+  <div><p><img src="./1-4-1.png" alt="axle with motor and wheel"></p></div>
 </div>
 
 ## Step 5
@@ -73,7 +73,7 @@ The wheel should be “sandwiched” by collars. This ensures that the wheel can
 Wire up your motor to the VEX electronics! Be sure to connect the motor to port 1. It doesn’t matter which ports the controller and radio are connected to. The Radio should have its red lights on.
 
 <div class="row-container">
-  <p><img src="./1-5-1.png" alt="labeled electronics"></p>
+  <div><p><img src="./1-5-1.png" alt="labeled electronics"></p></div>
 </div>
 
 ## Step 6
@@ -91,7 +91,7 @@ Turn on the CORTEX and controller. After the controller connects to the CORTEX w
 Select the “Drive” program on your controller (see the note below). Then hit Run, and you are done! You should be able to control the motor with the left joystick.
 
 <div style="display: flex;">
-  <p><img src="./1-7-1.png" alt="about to run the 'drive' program"></p>
+  <div><p><img src="./1-7-1.png" alt="about to run the 'drive' program"></p></div>
 </div>
 
 ### Note: Controlling the Controller
