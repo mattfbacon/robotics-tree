@@ -26,26 +26,31 @@ Click the motor icon on the top right; then click "Add a device".
 
 \
 Add a "Controller", then click "DONE".
+
 ![VEX configuration device list with "Controller" selected](./2-3-2.png)
 !["Controller1" configuration panel with "DONE" highlighted](./2-3-3.png)
 
 ## Step 4
 
 Add a motor by clicking "Add a Device" again, then selecting "MOTOR".
+
 ![VEX configuration device list with "MOTOR" selected](./2-4-1.png)
 
 \
-Select a port (doesn't matter for now), then name the motor "left_motor" by clicking the text field near the top. Finally, click "DONE". You should see the port number of left_motor near its name.  
+Select a port (doesn't matter for now), then name the motor "left_motor" by clicking the text field near the top. Finally, click "DONE". You should see the port number of left_motor near its name.
+
 ![motor configuration screen; renamed to "left_motor"](./2-4-2.png)
 ![left_motor connected to port 3, indicated with "3" icon](./2-4-3.png)
 
 \
 Add another motor named "right_motor" with the same process outlined above. You should have two motors and a Controller in your "Robot Configuration" list.
+
 ![Controller1, left_motor, and right_motor listed in "Robot Configuration"](./2-4-4.png)
 
 ## Step 5
 
 Locate the `main` function in the code. The function starts with `int main() {` and ends with a `}` character. Place your cursor inside the `main` function, after the `vexcodeInit();` command.
+
 ![inside main() {, after vexcodeInit()](./2-5-1.png)
 
 Paste the following code inside the `main` function, at your cursor:
