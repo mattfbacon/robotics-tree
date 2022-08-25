@@ -1,5 +1,5 @@
 ---
-name = "Programming the Drivetrain with VEXCode Pro v5 - Beginner Friendly"
+name = "Programming the Drivetrain with VEXCode Pro v5"
 description = "In this document, we upload a basic program to a pre-built drivetrain to make the robot move with driver control! If you haven't built the drivetrain already, refer to 'Building a Drivetrain'."
 ---
 
