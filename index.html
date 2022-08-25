@@ -28,7 +28,7 @@
 			onclick="document.getElementById('dialog-programming-0').showModal();"
 			data-set-completed="programming-0"
 		>
-			<h1>Programming the Drivetrain with VEXCode Pro v5</h1>
+			<h1>Program­ming the Drivetrain</h1>
 		</article> <article
 			class="node"
 			id="node-building-0"
@@ -59,8 +59,8 @@
 	<form method="dialog">
 		<input class="close-button" type="submit" value="X" label="Close" />
 	</form>
-	<h1>Programming the Drivetrain with VEXCode Pro v5</h1>
-	<p>In this document, we upload a basic program to a pre-built drivetrain to make the robot move with driver control! If you haven&#x27;t built the drivetrain already, refer to &#x27;Building a Drivetrain&#x27;.</p>
+	<h1>Program­ming the Drivetrain</h1>
+	<p>In this document, we upload a basic program made with VexCode Pro V5 to a pre-built drivetrain to make the robot move with driver control! If you haven&#x27;t built the drivetrain already, refer to &#x27;Building a Drivetrain&#x27;.</p>
 	<hr />
 	<div class="content"><h2>Step 1</h2>
 <p>Gather materials:</p>
@@ -79,8 +79,7 @@
 <h2>Step 3</h2>
 <p>Click the motor icon on the top right; then click “Add a device”.</p>
 <p><img src="img/programming/2-3-1.png" alt="“Add a device” button under “Robot Configuration”" /></p>
-<p><br />
-Add a “Controller”, then click “DONE”.</p>
+<p>Add a “Controller”, then click “DONE”.</p>
 <p><img src="img/programming/2-3-2.png" alt="VEX configuration device list with “Controller” selected" />
 <img src="img/programming/2-3-3.png" alt="“Controller1” configuration panel with “DONE” highlighted" /></p>
 <h2>Step 4</h2>
@@ -97,34 +96,13 @@ Add another motor named “right_motor” with the same process outlined above. 
 <p>Locate the <code>main</code> function in the code. The function starts with <code>int main() {</code> and ends with a <code>}</code> character. Place your cursor inside the <code>main</code> function, after the <code>vexcodeInit();</code> command.</p>
 <p><img src="img/programming/2-5-1.png" alt="inside main() {, after vexcodeInit()" /></p>
 <p>Paste the following code inside the <code>main</code> function, at your cursor:</p>
-<pre lang="cpp"><code>while (true) {
-    left_motor.spin(forward, Controller1.Axis3.position() * drivetrain_dampening, percent); //spin drivetrain
-    right_motor.spin(forward, Controller1.Axis2.position() * drivetrain_dampening, percent);
-    wait(100, msec);
-  }
-</code></pre>
+<table class="highlight-table"><tbody><tr><td class="hl-line" data-line="1">1</td><td><span class="hl-k">while</span> (<span class="hl-c">true</span>) {</td></tr><tr><td class="hl-line" data-line="2">2</td><td>  left_motor.<span class="hl-en">spin</span>(forward, Controller1.Axis3.<span class="hl-en">position</span>() * drivetrain_dampening, percent); <span class="hl-cmt">//spin drivetrain</span></td></tr><tr><td class="hl-line" data-line="3">3</td><td>  right_motor.<span class="hl-en">spin</span>(forward, Controller1.Axis2.<span class="hl-en">position</span>() * drivetrain_dampening, percent);</td></tr><tr><td class="hl-line" data-line="4">4</td><td>  <span class="hl-en">wait</span>(<span class="hl-c">100</span>, msec);</td></tr><tr><td class="hl-line" data-line="5">5</td><td>}</td></tr></tbody></table>
 <p>You should get a red underline under <code>drivetrain_dampening</code>; when hovering, an error pops up that <code>[clang] Use of undeclared identifier 'drivetrain_dampening'</code>. This error basically says that we haven’t defined the <code>drivetrain_dampening</code> variable yet (if you don’t know what variables are, don’t worry about it for now).</p>
 <p><img src="img/programming/2-5-2.png" alt="drivetrain_dampening isn’t defined" /></p>
 <p>Define the <code>drivetrain_dampening</code> outside of the <code>main</code> function with this code:</p>
-<pre lang="cpp"><code>float drivetrain_dampening = 1;
-</code></pre>
+<table class="highlight-table"><tbody><tr><td class="hl-line" data-line="1">1</td><td><span class="hl-k">float</span> drivetrain_dampening = <span class="hl-c">1</span>;</td></tr></tbody></table>
 <p>Your full <code>main.cpp</code> file should now look like this:</p>
-<pre lang="cpp"><code>#include &quot;vex.h&quot;
-
-using namespace vex;
-
-float drivetrain_dampening = 1;
-
-int main() {
-  // Initializing Robot Configuration. DO NOT REMOVE!
-  vexcodeInit();
-  while (true) {
-    left_motor.spin(forward, Controller1.Axis3.position() * drivetrain_dampening, percent); //spin drivetrain
-    right_motor.spin(forward, Controller1.Axis2.position() * drivetrain_dampening, percent);
-    wait(100, msec);
-  }
-}
-</code></pre>
+<table class="highlight-table"><tbody><tr><td class="hl-line" data-line="1">1</td><td>#<span class="hl-k">include</span> <span class="hl-s">"vex.h"</span></td></tr><tr><td class="hl-line" data-line="2">2</td><td></td></tr><tr><td class="hl-line" data-line="3">3</td><td><span class="hl-k">using</span> <span class="hl-k">namespace</span> vex;</td></tr><tr><td class="hl-line" data-line="4">4</td><td></td></tr><tr><td class="hl-line" data-line="5">5</td><td><span class="hl-k">float</span> drivetrain_dampening = <span class="hl-c">1</span>;</td></tr><tr><td class="hl-line" data-line="6">6</td><td></td></tr><tr><td class="hl-line" data-line="7">7</td><td><span class="hl-k">int</span> <span class="hl-en">main</span>() {</td></tr><tr><td class="hl-line" data-line="8">8</td><td>  <span class="hl-cmt">// Initializing Robot Configuration. DO NOT REMOVE!</span></td></tr><tr><td class="hl-line" data-line="9">9</td><td>  <span class="hl-en">vexcodeInit</span>();</td></tr><tr><td class="hl-line" data-line="10">10</td><td>  <span class="hl-k">while</span> (<span class="hl-c">true</span>) {</td></tr><tr><td class="hl-line" data-line="11">11</td><td>    left_motor.<span class="hl-en">spin</span>(forward, Controller1.Axis3.<span class="hl-en">position</span>() * drivetrain_dampening, percent); <span class="hl-cmt">//spin drivetrain</span></td></tr><tr><td class="hl-line" data-line="12">12</td><td>    right_motor.<span class="hl-en">spin</span>(forward, Controller1.Axis2.<span class="hl-en">position</span>() * drivetrain_dampening, percent);</td></tr><tr><td class="hl-line" data-line="13">13</td><td>    <span class="hl-en">wait</span>(<span class="hl-c">100</span>, msec);</td></tr><tr><td class="hl-line" data-line="14">14</td><td>  }</td></tr><tr><td class="hl-line" data-line="15">15</td><td>}</td></tr></tbody></table>
 <p>The bit inside the <code>main</code> function tells the robot motors to spin according to your <code>Controller1</code> axis values; a Controller “axis” is just a way to move the joystick (e.g. up and down on the left joystick, left to right on the right joystick, up and down on the right joystick, etc.)</p>
 <h2>Step 6</h2>
 <p>Now the fun bit – uploading your code and testing!</p>
@@ -218,15 +196,15 @@ int main() {
 <h2>Step 5</h2>
 <p>Wire up your motor to the VEX electronics! Be sure to connect the motor to port 1. It doesn’t matter which ports the controller and radio are connected to. The Radio should have its red lights on.</p>
 <html><div class="row-container">
-  <div><p><img alt="labeled electronics" src="img/building/1-5-1.png"></p></div>
+  <div><p><img src="img/building/1-5-1.png" alt="labeled electronics"></p></div>
 </div>
 </html>
 <h2>Step 6</h2>
 <p>Turn on the CORTEX and controller. After the controller connects to the CORTEX with a wire, disconnect the wire connecting the controller and CORTEX. The controller should automatically switch to a wireless connection with the CORTEX.</p>
 <html><div class="row-container">
-  <div><p><img alt="controller screen indicating that the controller is looking for a cortex" src="img/building/1-6-1.png"></p><p>The controller is looking for a CORTEX.</p></div>
+  <div><p><img src="img/building/1-6-1.png" alt="controller screen indicating that the controller is looking for a cortex"></p><p>The controller is looking for a CORTEX.</p></div>
   <div><p><img src="img/building/1-6-2.png" alt="controller screen indicating that the controller is wired to the cortex"></p><p>The controller is wired to the CORTEX.</p></div>
-  <div><p><img alt="controller screen indicating that the controller is wirelessly connected to the cortex" src="img/building/1-6-3.png"></p><p>The controller is wirelessly controlled to the CORTEX, via the radio. This is usually how the controller should be set up.</p></div>
+  <div><p><img src="img/building/1-6-3.png" alt="controller screen indicating that the controller is wirelessly connected to the cortex"></p><p>The controller is wirelessly controlled to the CORTEX, via the radio. This is usually how the controller should be set up.</p></div>
 </div>
 </html>
 <h2>Step 7</h2>
@@ -235,8 +213,8 @@ int main() {
 <h3>Note: Controlling the Controller</h3>
 <p>Refer to the images below for a quick controller overview. Use the reset button if the controller ever freezes up.</p>
 <html><div class="row-container">
-  <div><img alt="on the front of the controller: arrow buttons in the bottom left move along menus. the middle power button can be pressed to go back or long pressed to turn off. the A button is used to select and the B button is used to go back." src="img/building/1-7-2.png"></div>
-  <div><img src="img/building/1-7-3.png" alt="on the back of the controller: there is a hole that contains a reset button which can be pressed with a screwdriver"></div>
+  <div><img src="img/building/1-7-2.png" alt="on the front of the controller: arrow buttons in the bottom left move along menus. the middle power button can be pressed to go back or long pressed to turn off. the A button is used to select and the B button is used to go back."></div>
+  <div><img alt="on the back of the controller: there is a hole that contains a reset button which can be pressed with a screwdriver" src="img/building/1-7-3.png"></div>
 </div>
 </html>
 </div>
