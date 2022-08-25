@@ -1,8 +1,19 @@
 ---
-name = "Programming the Drivetrain with VEXCode Pro v5"
+name = "Programming the Drivetrain"
 description = "In this document, we upload a basic program to a pre-built drivetrain to make the robot move with driver control! If you haven't built the drivetrain already, refer to 'Building a Drivetrain'."
 ---
 
+## Introduction
+
+In this module, we program a drivetrain so that you can control it with the controller. We are going to do this with two different softwares: VEXCode Pro v5 (the official editor) and the VEX PROS API (an open-source, well-documented, highly functional API). 
+
+If you plan on coding for a VEX competition and have some prior coding experience, I'd recommend skipping to the "PROS" section of this module, so that you know how to use that approach. In general, the PROS API definitely has more features and is more advanced than the official API. The documentation is also pretty impressive compared to the official editor. 
+
+However, if you are a beginner to coding in general, I'd stick with the VEXCode Pro v5 approach for now. It's a little easier to learn, and sets you up to learn the PROS API if you want to. Once you feel you can use the official editor a little bit, you can always come back to this module to learn the PROS approach (it's really not that different at this level).
+
+Without further ado, let's get going!
+
+# With VEXCode Pro v5
 ## Step 1
 
 Gather materials:
@@ -55,12 +66,25 @@ Select a port (doesn't matter for now), then name the motor "left_motor" by clic
 ![left_motor connected to port 3, indicated with "3" icon](./2-4-3.png)
 
 \
-Add another motor named "right_motor" with the same process outlined above. You should have two motors and a Controller in your "Robot Configuration" list.
+Add another motor named "right_motor" with the same process outlined above. **Reverse the direction of the motor** by clicking the toggle switch (see image below). You should have two motors and a Controller in your "Robot Configuration" list.
+
+**If you have a 4 wheel drive, you have to configure two extra motors.** Name them whatever you want; you will have to write code to match these names. 
+
+It's generally good practice to configure every motor individually rather than configuring a "motor group"; you can get more functionality. 
+
+![motor reversed](./2-4-4.png)
+![Controller1, left_motor, and right_motor listed in "Robot Configuration"](./2-4-5.png)
 
 
+### Coding Note: Why reverse motors?
+On every v5 motor, you will see a plus icon with a circular direction indicated. This is the default positive orientation of the motor. When a positive percent value is passed to the motor, the motor will spin in the indicated direction by default. 
+![vex v5 motor with positive orientation indicator circled](./2-4-6.png)
 
-![Controller1, left_motor, and right_motor listed in "Robot Configuration"](./2-4-4.png)
+When you move a joystick forward, all wheels should spin in the same direction (forward). However, the positive orientations of the left wheels are actually in the *opposite direction* to the right wheels! This means that passing a positive percentage value to both sides will result in both sides spinning in opposite directions.
 
+We could just invert the percent value of the joystick (multiply by -1) and pass this inverted value to one side. However, a more elegant solution is to just "reverse" one side of the motors, thus reversing the positive orientation of one side. Now, a positive percentage value will spin both sides of the motor in the same direction (yay!). 
+
+(exactly the same logic applies for negative percentage values as well)
 ## Step 5
 
 Locate the `main` function in the code. The function starts with `int main() {` and ends with a `}` character. Place your cursor inside the `main` function, after the `vexcodeInit();` command.
@@ -113,6 +137,65 @@ int main() {
 
 The bit inside the `main` function tells the robot motors to spin according to your `Controller1` axis values; a Controller "axis" is just a way to move the joystick (e.g. up and down on the left joystick, left to right on the right joystick, up and down on the right joystick, etc.)
 
+
+### Note: 4 wheel drive
+
+If you have a 4 wheel drive, you just have to add a few more function calls to spin the other two motors. 
+
+Suppose you have two other motors, in addition to the `left_motor` and `right_motor` configured above; let's call them `left_back_motor` and `right_back_motor`. 
+
+Inside the while loop, we have to tell the `left_back_motor` to spin:
+
+```cpp
+  left_back_motor.spin(forward, )
+```
+Since this a motor on the *left* side of the bot, we want to use the axis 3 value to control that motor; axis 3 is on the *left* side of the controller. 
+
+The axis numbers are indicated in the Controller configuration:
+
+
+
+![axis numbers on controller configuration screen](./2-5-3.png)
+
+
+We add to our code:
+```cpp
+  left_back_motor.spin(forward, Controller1.Axis3.position() * drivetrain_dampening, percent);
+```
+
+A similar command for the right motor might look like:
+
+```cpp
+  right_back_motor.spin(forward, Controller1.Axis2.position() * drivetrain_dampening, percent);
+```
+
+Notice how we used axis 2 instead, since that axis is on the right side of the controller. 
+
+For a 4 wheel drive, your full `main.cpp` file should look something like this:
+
+```cpp
+  #include "vex.h"
+
+using namespace vex;
+
+float drivetrain_dampening = 1;
+
+int main() {
+  // Initializing Robot Configuration. DO NOT REMOVE!
+  vexcodeInit();
+  while (true) {
+    //spin front motors
+    left_motor.spin(forward, Controller1.Axis3.position() * drivetrain_dampening, percent); 
+    right_motor.spin(forward, Controller1.Axis2.position() * drivetrain_dampening, percent);
+
+    //spin back motors
+    left_back_motor.spin(forward, Controller1.Axis3.position() * drivetrain_dampening, percent);
+    right_back_motor.spin(forward, Controller1.Axis2.position() * drivetrain_dampening, percent);
+    wait(100, msec);
+  }
+}
+```
+
 ## Step 6
 
 Now the fun bit -- uploading your code and testing!
@@ -125,3 +208,11 @@ Now the fun bit -- uploading your code and testing!
 ## Step 7
 
 Run the drivetrain program, and you should be able to control the drivetrain with your joysticks!
+
+# With PROS API
+
+## Step 1 
+
+The [PROS getting started page](https://pros.cs.purdue.edu/v5/getting-started/index.html) is excellent at explaining the installation process. Follow the instructions on that page. 
+
+## Step 2
