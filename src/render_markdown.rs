@@ -22,6 +22,19 @@ fn copy_url(url_str: &str, category: &str) -> Option<String> {
 	}
 }
 
+macro_rules! html_name {
+	($name:expr) => {
+		html5ever::QualName {
+			prefix: None,
+			ns: {
+				use html5ever::namespace_url; // `ns!` macro is unhygienic
+				html5ever::ns!()
+			},
+			local: html5ever::local_name!("src"),
+		}
+	};
+}
+
 pub fn render(
 	file_path: &Arc<str>,
 	input: &str,
@@ -103,14 +116,7 @@ pub fn render(
 				for value in fragment.tree.values_mut() {
 					if let scraper::Node::Element(element) = value {
 						if element.name().eq_ignore_ascii_case("img") {
-							if let Some(src) = element.attrs.get_mut(&html5ever::QualName {
-								prefix: None,
-								ns: {
-									use html5ever::namespace_url; // `ns!` macro is unhygienic
-									html5ever::ns!()
-								},
-								local: html5ever::local_name!("src"),
-							}) {
+							if let Some(src) = element.attrs.get_mut(&html_name!("src")) {
 								if let Some(new_url) = copy_url(src.as_ref(), category) {
 									*src = new_url.into();
 								}
