@@ -5,17 +5,17 @@ use crate::ItemMeta;
 
 fn copy_url(url_str: &str, category: &str) -> Option<String> {
 	if let Some(relative_path) = url_str.strip_prefix("./") {
+		let in_path = ["items", category, relative_path]
+			.into_iter()
+			.collect::<PathBuf>();
+		let out_path = ["dist", "img", category, relative_path]
+			.into_iter()
+			.collect::<PathBuf>();
+
 		std::fs::create_dir_all(["dist", "img", category].into_iter().collect::<PathBuf>())
 			.expect("ensuring dist subdirectory for items");
-		std::fs::copy(
-			["items", category, relative_path]
-				.into_iter()
-				.collect::<PathBuf>(),
-			["dist", "img", category, relative_path]
-				.into_iter()
-				.collect::<PathBuf>(),
-		)
-		.expect("copying image from items directory to dist directory");
+		std::fs::copy(&in_path, &out_path)
+			.unwrap_or_else(|_| panic!("copying image from {in_path:?} to {out_path:?}"));
 		Some(format!("img/{category}/{relative_path}"))
 	} else {
 		None
